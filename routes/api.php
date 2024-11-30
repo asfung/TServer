@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SelectQueryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,10 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router
         $router->get('GetFile', [MediaController::class, 'getFile']);
     });
     $router->group(['prefix' => '/post'], function ($router) {
-        $router->post('/', [PostController::class, 'newPostCTLL']);
+        $router->post('/CreatePost', [PostController::class, 'newPostCTLL']);
+        $router->get('/', [SelectQueryController::class, 'getPostCTLL']);
+        $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
+        $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL']);
     });
 });
 

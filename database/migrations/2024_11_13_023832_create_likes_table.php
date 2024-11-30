@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('post_id');
             $table->string('user_id');
             $table->timestamps();
+            $table->unique(['post_id', 'user_id']);
         });
     }
 

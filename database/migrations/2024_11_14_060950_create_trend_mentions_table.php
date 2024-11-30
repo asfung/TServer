@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('trend_mentions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('tag_id');
-            $table->string('count');
+            // $table->string('count');
             $table->timestamps();
         });
     }

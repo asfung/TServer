@@ -8,10 +8,10 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiCommon
 {
-  public static function sendResponse($result, $message, $code = 200)
+  public static function sendResponse($result, $message, $code = 200, $isSuccess = true)
   {
     $response = [
-      'success' => true,
+      'success' => $isSuccess,
       'data'    => $result
     ];
     if (!empty($message)) {
@@ -19,6 +19,27 @@ class ApiCommon
     }
     return response()->json($response, $code);
   }
+
+  public static function sendPaginatedResponse($paginator, $message = "", $code = 200)
+  {
+      $response = [
+          'success' => true,
+          'data' => $paginator->items(), 
+          'meta' => [
+              'current_page' => $paginator->currentPage(),
+              'last_page' => $paginator->lastPage(),
+              'per_page' => $paginator->perPage(),
+              'total' => $paginator->total(),
+          ]
+      ];
+
+      if (!empty($message)) {
+          $response['message'] = $message;
+      }
+
+      return response()->json($response, $code);
+  }
+
 
   public static function rollback($e, $message = "Something went wrong! Process not completed")
   {

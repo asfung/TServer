@@ -7,6 +7,8 @@ class PostDTO {
     private $content;
     private $parent_id;
     private $community_id;
+    private $perPage;
+    private $post_id;
     
 
     /**
@@ -85,6 +87,46 @@ class PostDTO {
     public function setCommunity_id($community_id)
     {
         $this->community_id = $community_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of perPage
+     */ 
+    public function getPerPage()
+    {
+        return $this->perPage;
+    }
+
+    /**
+     * Set the value of perPage
+     *
+     * @return  self
+     */ 
+    public function setPerPage($perPage)
+    {
+        $this->perPage = $perPage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of post_id
+     */ 
+    public function getPost_id()
+    {
+        return $this->post_id;
+    }
+
+    /**
+     * Set the value of post_id
+     *
+     * @return  self
+     */ 
+    public function setPost_id($post_id)
+    {
+        $this->post_id = $post_id;
 
         return $this;
     }

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('user_id');
             $table->text('content')->nullable();
             $table->string('parent_id')->nullable();
-            $table->string('liked_count')->nullable();
-            $table->string('replied_count')->nullable();
-            $table->string('reposted_count')->nullable();
+            // $table->string('liked_count')->nullable();
+            // $table->string('replied_count')->nullable();
+            // $table->string('reposted_count')->nullable();
             $table->string('community_id')->nullable();
             $table->timestamps();
         });

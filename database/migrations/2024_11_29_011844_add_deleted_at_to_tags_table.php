@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trend_hashtags', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('tag_id');
-            // $table->string('count');
-            $table->timestamps();
+        Schema::table('tags', function (Blueprint $table) {
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trend_hashtags');
+        Schema::table('tags', function (Blueprint $table) {
+            //
+        });
     }
 };
