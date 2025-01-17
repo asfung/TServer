@@ -16,4 +16,8 @@ class Like extends Model
         return $this->belongsTo(Post::class, 'post_id', 'post_id');
     }
 
+    public function bookmark(){
+        return $this->belongsTo(Bookmark::class);
+    }
+
 }

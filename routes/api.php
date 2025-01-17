@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SelectQueryController;
@@ -34,6 +36,17 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router
         $router->get('/', [SelectQueryController::class, 'getPostCTLL']);
         $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
         $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL']);
+
+        // LIKE
+        $router->group(['prefix' => '/like'], function ($router) {
+            $router->post('/Like', [LikeController::class, 'likeToCTLL']);
+        });
+
+        // BOOKMARK
+        $router->group(['prefix' => '/bookmark'], function ($router) {
+            $router->post('/CreateDelete', [BookmarkController::class, 'storeBookmarkCTLL']);
+        });
+
     });
 });
 

@@ -8,7 +8,7 @@ use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PostController {
+class PostController extends Controller{
 
     protected $postService;
 
