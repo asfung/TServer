@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Common\ApiCommon;
+use App\DTO\MediaDTO;
 use App\Models\Media;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class MediaService
@@ -27,7 +30,7 @@ class MediaService
     public function uploadFile($type, UploadedFile $file)
     {
         $generatedId = Str::uuid()->toString();
-        // $extension = pathinfo($filePath, PATHINFO_EXTENSION); 
+        // $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
         if ($type === 'image-post') {
             $fullPath = "{$this->url}image/post/{$generatedId}.{$file->getClientOriginalExtension()}";
@@ -123,10 +126,77 @@ class MediaService
     }
 
 
+    public function editMediaPostId(MediaDTO $mediaDTO){
+        try{
+            DB::beginTransaction();
+            $arrayData = $mediaDTO->getData();
+            $postId = $mediaDTO->getPost_id();
+            $dataSclicing = [];
+
+            if(is_array($arrayData)){
+                foreach($arrayData as $item){
+                    DB::commit();
+                    $dataSclicing[] = $item['id'];
+                    $mediaPostId = Media::where('id', $item['id'])->first();
+                    $mediaPostId->post_id = $postId;
+                    // $mediaPostId->post_id = null;
+                    $mediaPostId->save();
+                }
+                return ApiCommon::sendResponse($arrayData, 'Berhasil Mengubah post_id pada Media item', 201);
+            }else{
+                return ApiCommon::sendResponse($arrayData, 'data is not the array value', 400);
+            }
+
+            // return response()->json([
+            //     'data' => $dataSclicing,
+            //     'post_id' => $postId,
+            // ], 200);
+
+
+        }catch(\Exception $e){
+            // ApiCommon::rollback($e->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function deleteMediaPostId(MediaDTO $mediaDTO){
+        try{
+            DB::beginTransaction();
+            $arrayData = $mediaDTO->getData();
+            $postId = $mediaDTO->getPost_id();
+            $dataSclicing = [];
+
+            if(is_array($arrayData)){
+                foreach($arrayData as $item){
+                    DB::commit();
+                    $dataSclicing[] = $item['id'];
+                    $mediaPostId = Media::where('id', $item['id'])->first();
+                    $mediaPostId->deleted_at = Carbon::now();
+                    $mediaPostId->save();
+                }
+                return ApiCommon::sendResponse($arrayData, 'Berhasil Menghapus Media item', 201);
+            }else{
+                return ApiCommon::sendResponse($arrayData, 'data is not the array value', 400);
+            }
+
+        }catch(\Exception $e){
+            // ApiCommon::rollback($e->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     private function insertMedia(array $mediaData, array $additionalData)
     {
         $data = array_merge($mediaData, $additionalData);
         $mediaItem = Media::create($data);
         return $mediaItem;
     }
+
 }
