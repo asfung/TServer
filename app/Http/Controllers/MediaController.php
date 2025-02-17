@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\DTO\MediaDTO;;
 use Illuminate\Http\Request;
 use App\Services\MediaService;
 
@@ -16,26 +17,26 @@ class MediaController extends Controller{
         try{
         $request->validate([
             'file' => 'required|file|mimes:png,jpg,jpeg,gif|max:2048',
-            'type' => 'string', 
+            'type' => 'string',
         ]);
 
         $file = $request->file('file');
-        $type = $request->input('type'); 
-        // $filePath = $file->getRealPath(); 
+        $type = $request->input('type');
+        // $filePath = $file->getRealPath();
 
         // if (strpos($file->getMimeType(), 'image/') === 0) {
         //     if (empty($type)) {
-        //         $type = 'image-post'; 
+        //         $type = 'image-post';
         //     } else {
         //         $type = 'image-profile';
         //     }
         // }
         // elseif (strpos($file->getMimeType(), 'video/') === 0) {
         //     if (!empty($type)) {
-        //         $type = 'video'; 
+        //         $type = 'video';
         //     }
         //     // } else {
-        //     //     $type = 'video-profile'; 
+        //     //     $type = 'video-profile';
         //     // }
         // } else {
         //     return response()->json([
@@ -45,9 +46,9 @@ class MediaController extends Controller{
 
         if(is_null($type)){
             if (strpos($file->getMimeType(), 'image/') === 0) {
-                $type = 'image-post'; 
+                $type = 'image-post';
             } elseif (strpos($file->getMimeType(), 'video/') === 0) {
-                $type = 'video'; 
+                $type = 'video';
             }
         }else{
             $type = 'image-profile';
@@ -70,9 +71,9 @@ class MediaController extends Controller{
                 'id' => 'required|exists:media,id',
             ]);
             $id = $request->input('id');
-        
+
             $result = $this->mediaService->getFileById($id);
-        
+
             if (!$result['error']) {
                 return response($result['data'])
                     ->header('Content-Type', $result['headers']['Content-Type'])
@@ -88,27 +89,53 @@ class MediaController extends Controller{
         }
     }
 
-    public function test(Request $request){
+    public function mediaPostIdEditCTLL(Request $request){
         try{
 
             $arrayData = $request->input('data');
+            $postId = $request->input('post_id');
             $dataSclicing = [];
 
-            if(is_array($arrayData)){
-                foreach($arrayData as $item){
-                    $dataSclicing[] = $item['key'];
-                }
-            }
+            // if(is_array($arrayData)){
+            //     foreach($arrayData as $item){
+            //         $dataSclicing[] = $item['key'];
+            //     }
+            // }
+            $mediaDto = new MediaDTO();
+            $mediaDto->setPost_id($postId);
+            $mediaDto->setData($arrayData);
+
+            return $this->mediaService->editMediaPostId($mediaDto);
 
 
-            return response()->json([
-                'data' => $dataSclicing
-            ], 200);
+            // return response()->json([
+            //     'data' => $dataSclicing,
+            //     'post_id' => $postId,
+            // ], 200);
         }catch(\Exception $e){
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
         }
     }
+
+    public function mediaPostIdDeleteCTLL(Request $request){
+        try{
+
+            $arrayData = $request->input('data');
+            $postId = $request->input('post_id');
+
+            $mediaDto = new MediaDTO();
+            $mediaDto->setPost_id($postId);
+            $mediaDto->setData($arrayData);
+
+            return $this->mediaService->editMediaPostId($mediaDto);
+        }catch(\Exception $e){
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
@@ -26,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router) {
     $router->post('Logout', [AuthController::class, 'logout']);
-    $router->post('test', [MediaController::class, 'test']);
+    // $router->post('test', [MediaController::class, 'test']);
     $router->group(['prefix' => '/media'], function ($router) {
         $router->post('Upload', [MediaController::class, 'uploadFile']);
         $router->get('GetFile', [MediaController::class, 'getFile']);
@@ -36,6 +37,11 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router
         $router->get('/', [SelectQueryController::class, 'getPostCTLL']);
         $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
         $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL']);
+
+        // FOLLOW
+        $router->group(['prefix' => '/follow'], function ($router) {
+            $router->post('/CreateDelete', [FollowController::class, 'createCTLL']);
+        });
 
         // LIKE
         $router->group(['prefix' => '/like'], function ($router) {
@@ -47,10 +53,17 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router
             $router->post('/CreateDelete', [BookmarkController::class, 'storeBookmarkCTLL']);
         });
 
+        // MEDIA
+        $router->group(['prefix' => '/media'], function ($router) {
+            $router->post('/MediaPostIdEdit', [MediaController::class, 'mediaPostIdEditCTLL']);
+            $router->post('/MediaDelete', [MediaController::class, 'mediaPostIdDeleteCTLL']);
+        });
+
         // USER
         // $router->group(['prefix' => '/user'], function ($router) {
         //     $router->post('/', [BookmarkController::class, 'storeBookmarkCTLL']);
         // });
+
 
     });
 });

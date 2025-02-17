@@ -22,6 +22,7 @@ class LikeService {
                 $likePost->save();
                 return ApiCommon::sendResponse($likePost, 'Berhasil Like Post ', 201);
             }else{
+                DB::commit();
                 $isLikeExists->deleted_at = Carbon::now();
                 $isLikeExists->save();
                 return ApiCommon::sendResponse($isLikeExists, 'Berhasil Remove Like Post', 201);
