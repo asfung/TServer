@@ -8,7 +8,7 @@ class LikeDTO{
 
     /**
      * Get the value of user_id
-     */ 
+     */
     public function getUser_id()
     {
         return $this->user_id;
@@ -18,7 +18,7 @@ class LikeDTO{
      * Set the value of user_id
      *
      * @return  self
-     */ 
+     */
     public function setUser_id($user_id)
     {
         $this->user_id = $user_id;
@@ -28,7 +28,7 @@ class LikeDTO{
 
     /**
      * Get the value of post_id
-     */ 
+     */
     public function getPost_id()
     {
         return $this->post_id;
@@ -38,7 +38,7 @@ class LikeDTO{
      * Set the value of post_id
      *
      * @return  self
-     */ 
+     */
     public function setPost_id($post_id)
     {
         $this->post_id = $post_id;
