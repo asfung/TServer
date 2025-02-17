@@ -47,6 +47,11 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/1'], function ($router
             $router->post('/CreateDelete', [BookmarkController::class, 'storeBookmarkCTLL']);
         });
 
+        // USER
+        // $router->group(['prefix' => '/user'], function ($router) {
+        //     $router->post('/', [BookmarkController::class, 'storeBookmarkCTLL']);
+        // });
+
     });
 });
 
