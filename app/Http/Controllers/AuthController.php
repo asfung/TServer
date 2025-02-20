@@ -22,6 +22,21 @@ class AuthController extends Controller
         ]);
         $credentials = $request->only('email', 'password');
 
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email not found',
+            ], 404);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incorrect password',
+            ], 401);
+        }
+
         $token = Auth::attempt($credentials);
         if (!$token) {
             return response()->json([
