@@ -6,8 +6,12 @@ class UserDTO{
     private $user_id;
     private $display_name;
     private $username;
+    private $email;
     private $profile_image;
     private $bio;
+    private $password;
+
+    // credentials
 
     public function getUser_id(){
         return $this->user_id;
@@ -94,6 +98,46 @@ class UserDTO{
     public function setBio($bio)
     {
         $this->bio = $bio;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of email
+     */ 
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set the value of email
+     *
+     * @return  self
+     */ 
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password
+     */ 
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Set the value of password
+     *
+     * @return  self
+     */ 
+    public function setPassword($password)
+    {
+        $this->password = $password;
 
         return $this;
     }

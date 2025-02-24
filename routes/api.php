@@ -26,8 +26,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['middleware' => ['auth:api', 'acl'], 'prefix' => '/1'], function ($router) {
+Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->post('Logout', [AuthController::class, 'logout']);
+    $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.refresh_token');
+    $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.check_token');
     // $router->post('test', [MediaController::class, 'test']);
     $router->group(['prefix' => '/media'], function ($router) {
         $router->post('Upload', [MediaController::class, 'uploadFile']);
@@ -115,6 +117,6 @@ Route::group(['middleware' => ['auth:api', 'acl'], 'prefix' => '/1'], function (
 });
 
 Route::group(['middleware' => [], 'prefix' => '/1'], function ($router) {
-    $router->post('Register',[AuthController::class,'register']);
-    $router->post('Login', [AuthController::class,'login']);
+    $router->post('Register',[AuthController::class,'registerCTLL']);
+    $router->post('Login', [AuthController::class,'loginCTLL']);
 });
