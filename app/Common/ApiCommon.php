@@ -17,6 +17,9 @@ class ApiCommon
     if (!empty($message)) {
       $response['message'] = $message;
     }
+    if($result === null){
+      unset($response['data']);
+    }
     return response()->json($response, $code);
   }
 

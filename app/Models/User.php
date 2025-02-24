@@ -61,6 +61,8 @@ class User extends Authenticatable implements JWTSubject
         // 'profile_image'=>$this->username,
       ];
     }
-
-
+    
+    public function role(){
+      return $this->belongsTo(Role::class);
+    }
 }
