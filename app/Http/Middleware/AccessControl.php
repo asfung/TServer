@@ -23,7 +23,8 @@ class AccessControl
 
     $currentRoute = $request->route()->getName();
 
-    if ($currentRoute === 'auth.refresh_token' || $currentRoute === 'auth.check_token') {
+    // if ($currentRoute === 'auth.refresh_token' || $currentRoute === 'auth.check_token') {
+    if ($currentRoute === 'auth.refresh_token') {
       return $next($request);
     }
 
@@ -32,6 +33,7 @@ class AccessControl
     } catch (TokenExpiredException $e) {
       return response()->json([
         'status' => 'error',
+        'key' => 'refresh-token',
         'message' => 'Token has expired.',
       ], 401);
     } catch (TokenInvalidException $e) {
