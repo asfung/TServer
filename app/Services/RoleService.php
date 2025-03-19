@@ -246,13 +246,18 @@ class RoleService
           return response()->json(['error' => 'Invalid mode specified'], 400);
       }
 
+      // Route::getRoutes()->getByName($permission->endpoint)->uri
       // $permission = $query->get()->map(function ($item) {
       //   $item->isExists = (bool) $item->isExists; 
       //   return $item;
       // });
-      $permission = $query->get();
+      // $permission = $query->get();
 
-      return ApiCommon::sendResponse($permission, 'Data Permission');
+      $permissions = $query->get()->map(function ($item) {
+        $item->uri = Route::getRoutes()->getByName($item->endpoint)->uri ?? 'N/A';
+        return $item;
+    });
+      return ApiCommon::sendResponse($permissions, 'Data Permission');
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
