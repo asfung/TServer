@@ -5,6 +5,7 @@ class RoleDTO {
     private $roleId;
     private $permissionId;
     private $resourceId;
+    private $mode;
 
     // permission 
     private $key;
@@ -127,6 +128,26 @@ class RoleDTO {
     public function setEndpoint($endpoint)
     {
         $this->endpoint = $endpoint;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mode
+     */ 
+    public function getMode()
+    {
+        return $this->mode;
+    }
+
+    /**
+     * Set the value of mode
+     *
+     * @return  self
+     */ 
+    public function setMode($mode)
+    {
+        $this->mode = $mode;
 
         return $this;
     }

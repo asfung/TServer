@@ -13,5 +13,9 @@ class Resource extends Model{
     {
         return $this->hasMany(Permission::class);
     }
+
+    protected $casts = [
+        'isExists' => 'boolean',
+    ];
 }
 

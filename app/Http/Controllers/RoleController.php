@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Common\ApiCommon;
 use App\DTO\RoleDTO;
+use App\DTO\UserDTO;
 use App\Models\Role;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
@@ -15,6 +16,74 @@ class RoleController extends Controller
 
   public function __construct(RoleService $roleService){
     $this->roleService = $roleService;
+  }
+
+  public function resourcesPermissionUserCTLL(Request $request){
+    try{
+      $groupBy = $request->input('groupBy');
+      return $this->roleService->resourcesPermissionUser($groupBy);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+ 
+  public function resourcesPermissionCTLL(Request $request, $roleId){
+    try{
+      $userDTO = new UserDTO();
+      $userDTO->setRoleId($roleId);
+      $groupBy = $request->input('groupBy');
+      return $this->roleService->resourcesPermission($userDTO, $groupBy);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function getAllRolesCTLL(Request $request){
+    try{
+      return $this->roleService->getAllRole();
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function resourcesAllCTLL(Request $request){
+    try{
+      $roleId = $request->input('roleId');
+      $mode = $request->input('mode');
+      $roleDTO = new RoleDTO();
+      $roleDTO->setRoleId($roleId);
+      $roleDTO->setMode($mode);
+
+      return $this->roleService->resourcesAll($roleDTO);
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function permissionsAllCTLL(Request $request){
+    try{
+      $roleId = $request->input('roleId');
+      $mode = $request->input('mode');
+      $roleDTO = new RoleDTO();
+      $roleDTO->setRoleId($roleId);
+      $roleDTO->setMode($mode);
+
+      return $this->roleService->permissionsAll($roleDTO);
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
   }
 
   public function resourcesCreateCTLL(Request $request){

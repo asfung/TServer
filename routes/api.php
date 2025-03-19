@@ -55,6 +55,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     // RESOURCES
     $router->group(['prefix' => '/resources'], function($router) {
         $router->post('Create', [RoleController::class, 'resourcesCreateCTLL'])->name('resources.create');
+        $router->post('All', [RoleController::class, 'resourcesAllCTLL'])->name('resources.all');
 
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
@@ -68,8 +69,11 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
 
     // PERMISSIONS
     $router->group(['prefix' => '/permissions'], function($router) {
-        $router->post('{resourceId}/Create', [RoleController::class, 'permissionsCreateCTLL'])->name('pemissions.create');
-
+        $router->post('{resourceId}/Create', [RoleController::class, 'permissionsCreateCTLL'])->name('permissions.create');
+        $router->post('User', [RoleController::class, 'resourcesPermissionUserCTLL'])->name('permissions.user');
+        $router->post('User/{roleId}', [RoleController::class, 'resourcesPermissionCTLL'])->name('permissions.resource-permission');
+        $router->post('All', [RoleController::class, 'permissionsAllCTLL'])->name('permissions.all');
+ 
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
             // ROLE_PERMISSION
@@ -79,6 +83,10 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         });
     });
 
+    // ROLE
+    $router->group(['prefix' => '/role'], function ($router) {
+        $router->post('/All', [RoleController::class, 'getAllRolesCTLL'])->name('roles.all');
+    });
 
     $router->group(['prefix' => '/post'], function ($router) {
         $router->post('/CreatePost', [PostController::class, 'newPostCTLL'])->name('post.create');
@@ -106,12 +114,6 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
             $router->post('/MediaPostIdEdit', [MediaController::class, 'mediaPostIdEditCTLL']);
             $router->post('/MediaDelete', [MediaController::class, 'mediaPostIdDeleteCTLL']);
         });
-
-        // USER
-        // $router->group(['prefix' => '/user'], function ($router) {
-        //     $router->post('/', [BookmarkController::class, 'storeBookmarkCTLL']);
-        // });
-
 
     });
 });

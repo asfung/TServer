@@ -4,14 +4,259 @@ namespace App\Services;
 
 use App\Common\ApiCommon;
 use App\DTO\RoleDTO;
+use App\DTO\UserDTO;
 use App\Models\Permission;
 use App\Models\Resource;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 class RoleService
 {
 
+  // QUERY
+  public function resourcesPermissionUser($groupBy = null){
+    try{
+      $userId = ApiCommon::getUserId();
+
+      $user = User::find($userId);
+      $role = Role::with('resources.permissions')->find($user->role->id);
+
+      $userResources = Role::find($user->role->id)->resources->pluck('key');
+      $userPermissions = Role::find($user->role->id)->permissions->pluck('key');
+
+      $data = $role->resources->map(function ($resource) use ($role) {
+        $rolePermissions = $role->permissions->pluck('id');
+
+        return [
+          'id' => $resource->id,
+          'key' => $resource->key,
+          'name' => $resource->name,
+          'icon_solid' => $resource->icon_solid,
+          'icon_outlined' => $resource->icon_outlined,
+          'resource_permissions' => $resource->permissions
+            ->filter(function ($permission) use ($rolePermissions) {
+              return $rolePermissions->contains($permission->id);
+            })
+            ->map(function ($permission) {
+              return [
+                'id' => $permission->id,
+                'key' => $permission->key,
+                'name' => $permission->name,
+                'endpoint_name' => $permission->endpoint,
+                'resource_id' => $permission->resource_id,
+                'endpoint_url' => Route::getRoutes()->getByName($permission->endpoint)->uri
+              ];
+            })
+            ->values()
+            ->toArray(),
+        ];
+      });
+    
+      $response = null;
+      if(!$groupBy){
+        $response = $data;
+      }else{
+        if($groupBy == 'key'){
+          $formatted = [
+            'role' => $user->role->name,
+            'resources' => $userResources,
+            'permissions' => $userPermissions
+          ];
+          $response = $formatted;
+        }else{
+          return ApiCommon::sendResponse(null, $groupBy . ' not exists', 400, false);
+        }
+      }
+
+      return ApiCommon::sendResponse($response, 'Data Resource Permission User', 200);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function resourcesPermission(UserDTO $userDTO, $groupBy = null){
+    try{
+      $roleId = $userDTO->getRoleId();
+      $userResources = Role::find($roleId)->resources->pluck('key');
+      $userPermissions = Role::find($roleId)->permissions->pluck('key');
+
+      $role = Role::with('resources.permissions')->find($roleId);
+
+
+      $data = $role->resources->map(function ($resource) use ($role) {
+        $rolePermissions = $role->permissions->pluck('id'); 
+
+      return [
+        'id' => $resource->id,
+        'key' => $resource->key,
+        'name' => $resource->name,
+        'icon_solid' => $resource->icon_solid,
+        'icon_outlined' => $resource->icon_outlined,
+        'resource_permissions' => $resource->permissions
+          ->filter(function ($permission) use ($rolePermissions) {
+              return $rolePermissions->contains($permission->id);
+          })
+          ->map(function ($permission) {
+            return [
+              'id' => $permission->id,
+              'key' => $permission->key,
+              'name' => $permission->name, 
+              'endpoint_name' => $permission->endpoint,
+              'resource_id' => $permission->resource_id,
+              'endpoint_url' => Route::getRoutes()->getByName($permission->endpoint)->uri
+            ];
+          })
+          ->values() 
+          ->toArray(),
+        ];
+      });
+
+      $response = null;
+      if(!$groupBy){
+        $response = $data;
+      }else{
+        if($groupBy === 'key'){
+          $formatted = [
+            'resources' => $userResources,
+            'permissions' => $userPermissions
+          ];
+          $response = $formatted;
+        }else{
+          return ApiCommon::sendResponse(null, $groupBy . ' not exists', 400);
+        }
+      }
+
+      return ApiCommon::sendResponse($response, 'Data Resource Permission', 200);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function getAllRole(){
+    try {
+
+      $roles = Role::all();
+      return ApiCommon::sendResponse($roles, 'Data Roles');
+
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function resourcesAll(RoleDTO $roleDTO){
+    try {
+      $roleId = $roleDTO->getRoleId();
+      $mode = $roleDTO->getMode() ?? 'all';
+
+      $query = Resource::select('resources.*');
+
+      switch ($mode) {
+        case 'all':
+          $query->leftJoin('role_resource', function ($join) use ($roleId) {
+            $join->on('resources.id', '=', 'role_resource.resource_id')
+              ->where('role_resource.role_id', '=', $roleId);
+          })
+            ->selectRaw('CASE WHEN role_resource.resource_id IS NOT NULL THEN 1 ELSE 0 END as isExists');
+          break;
+
+        case 'available':
+          $query->join('role_resource', function ($join) use ($roleId) {
+            $join->on('resources.id', '=', 'role_resource.resource_id')
+              ->where('role_resource.role_id', '=', $roleId);
+          })
+            ->selectRaw('1 as isExists');
+          break;
+
+        case 'not_available':
+          $query->leftJoin('role_resource', function ($join) use ($roleId) {
+            $join->on('resources.id', '=', 'role_resource.resource_id')
+              ->where('role_resource.role_id', '=', $roleId);
+          })
+            ->whereNull('role_resource.resource_id')
+            ->selectRaw('0 as isExists');
+          break;
+
+        default:
+          return response()->json(['error' => 'Invalid mode specified'], 400);
+      }
+
+      // $resource = $query->get()->map(function ($item) {
+      //   $item->isExists = (bool) $item->isExists;
+      //   return $item;
+      // });
+      $resource = $query->get();
+
+      return ApiCommon::sendResponse($resource, 'Data Resource');
+
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function permissionsAll(RoleDTO $roleDTO){
+    try {
+      $roleId = $roleDTO->getRoleId();
+      $mode = $roleDTO->getMode() ?? 'all';
+
+      $query = Permission::select('permissions.*');
+
+      switch ($mode) {
+        case 'all':
+          $query->leftJoin('role_permission', function ($join) use ($roleId) {
+            $join->on('permissions.id', '=', 'role_permission.permission_id') 
+              ->where('role_permission.role_id', '=', $roleId);
+          })
+            ->selectRaw('CASE WHEN role_permission.permission_id IS NOT NULL THEN 1 ELSE 0 END as isExists');
+          break;
+
+        case 'available':
+          $query->join('role_permission', function ($join) use ($roleId) {
+            $join->on('permissions.id', '=', 'role_permission.permission_id')
+              ->where('role_permission.role_id', '=', $roleId);
+          })
+            ->selectRaw('1 as isExists');
+          break;
+
+        case 'not_available':
+          $query->leftJoin('role_permission', function ($join) use ($roleId) {
+            $join->on('permissions.id', '=', 'role_permission.permission_id')
+              ->where('role_permission.role_id', '=', $roleId);
+          })
+            ->whereNull('role_permission.permission_id')
+            ->selectRaw('0 as isExists');
+          break;
+
+        default:
+          return response()->json(['error' => 'Invalid mode specified'], 400);
+      }
+
+      // $permission = $query->get()->map(function ($item) {
+      //   $item->isExists = (bool) $item->isExists; 
+      //   return $item;
+      // });
+      $permission = $query->get();
+
+      return ApiCommon::sendResponse($permission, 'Data Permission');
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  // COMMAND 
   public function resourcesCreate(RoleDTO $roleDTO){
     try{
       DB::beginTransaction();

@@ -12,4 +12,8 @@ class Permission extends Model{
     {
         return $this->belongsTo(Resource::class);
     }
+
+    protected $casts = [
+        'isExists' => 'boolean',
+    ];
 }

@@ -10,6 +10,7 @@ class UserDTO{
     private $profile_image;
     private $bio;
     private $password;
+    private $roleId;
 
     // credentials
 
@@ -138,6 +139,26 @@ class UserDTO{
     public function setPassword($password)
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of roleId
+     */ 
+    public function getRoleId()
+    {
+        return $this->roleId;
+    }
+
+    /**
+     * Set the value of roleId
+     *
+     * @return  self
+     */ 
+    public function setRoleId($roleId)
+    {
+        $this->roleId = $roleId;
 
         return $this;
     }
