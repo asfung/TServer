@@ -73,10 +73,12 @@ class RoleController extends Controller
   public function permissionsAllCTLL(Request $request){
     try{
       $roleId = $request->input('roleId');
+      $resourceId = $request->input('resourceId');
       $mode = $request->input('mode');
       $roleDTO = new RoleDTO();
       $roleDTO->setRoleId($roleId);
       $roleDTO->setMode($mode);
+      $roleDTO->setResourceId($resourceId);
 
       return $this->roleService->permissionsAll($roleDTO);
     }catch(\Exception $e){

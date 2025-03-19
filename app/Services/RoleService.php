@@ -209,12 +209,16 @@ class RoleService
     try {
       $roleId = $roleDTO->getRoleId();
       $mode = $roleDTO->getMode() ?? 'all';
+      $resourceId = $roleDTO->getResourceId();
 
       $query = Permission::select('permissions.*');
 
+      if($resourceId && $resourceId !== null){
+        $query->where('permissions.resource_id', $resourceId);
+      }
       switch ($mode) {
         case 'all':
-          $query->leftJoin('role_permission', function ($join) use ($roleId) {
+          $query->leftJoin('role_permission', function ($join) use ($roleId, $resourceId) {
             $join->on('permissions.id', '=', 'role_permission.permission_id') 
               ->where('role_permission.role_id', '=', $roleId);
           })
@@ -222,7 +226,7 @@ class RoleService
           break;
 
         case 'available':
-          $query->join('role_permission', function ($join) use ($roleId) {
+          $query->join('role_permission', function ($join) use ($roleId, $resourceId) {
             $join->on('permissions.id', '=', 'role_permission.permission_id')
               ->where('role_permission.role_id', '=', $roleId);
           })
@@ -230,7 +234,7 @@ class RoleService
           break;
 
         case 'not_available':
-          $query->leftJoin('role_permission', function ($join) use ($roleId) {
+          $query->leftJoin('role_permission', function ($join) use ($roleId, $resourceId) {
             $join->on('permissions.id', '=', 'role_permission.permission_id')
               ->where('role_permission.role_id', '=', $roleId);
           })
