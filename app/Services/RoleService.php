@@ -255,6 +255,7 @@ class RoleService
 
       $permissions = $query->get()->map(function ($item) {
         $item->uri = Route::getRoutes()->getByName($item->endpoint)->uri ?? 'N/A';
+        $item->methods = Route::getRoutes()->getByName($item->endpoint)->methods ?? 'N/A';
         return $item;
     });
       return ApiCommon::sendResponse($permissions, 'Data Permission');
@@ -271,6 +272,9 @@ class RoleService
       DB::beginTransaction();
       $key = $roleDTO->getKey();
       $name = $roleDTO->getName();
+      $iconSolid = $roleDTO->getIconSolid();
+      $iconOutlined = $roleDTO->getIconOutlined();
+      $path = $roleDTO->getPath();
 
       $hasResource = Resource::where('key', $key)->exists();
       if($hasResource){
@@ -281,11 +285,42 @@ class RoleService
       $newResource = new Resource();
       $newResource->key = $key;
       $newResource->name = $name;
+      $newResource->icon_solid = $iconSolid;
+      $newResource->icon_outlined = $iconOutlined;
+      $newResource->path = $path;
       $newResource->save();
 
       return ApiCommon::sendResponse($newResource, 'Resource Created', 201);
 
     }catch(\Exception $e){
+      DB::rollBack();
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function resourcesUpdate(RoleDTO $roleDTO){
+    try {
+      DB::beginTransaction();
+
+      $key = $roleDTO->getKey();
+
+      $resource = Resource::where('key', $key)->first();
+      if (!$resource) {
+        return ApiCommon::sendResponse(null, 'resource not exists', 404, false);
+      }
+
+      $resource->name = $roleDTO->getName() ?? $resource->name;
+      $resource->icon_solid = $roleDTO->getIconSolid() ?? $resource->icon_solid;
+      $resource->icon_outlined = $roleDTO->getIconOutlined() ?? $resource->icon_outlined;
+      $resource->path = $roleDTO->getPath() ?? $resource->path;
+      $resource->save();
+
+      DB::commit();
+
+      return ApiCommon::sendResponse($resource->fresh(), 'resource updated', 200);
+    } catch (\Exception $e) {
       DB::rollBack();
       return response()->json([
         'error' => $e->getMessage()

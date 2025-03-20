@@ -55,6 +55,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     // RESOURCES
     $router->group(['prefix' => '/resources'], function($router) {
         $router->post('Create', [RoleController::class, 'resourcesCreateCTLL'])->name('resources.create');
+        $router->post('Update', [RoleController::class, 'resourcesUpdateCTLL'])->name('resources.update');
         $router->post('All', [RoleController::class, 'resourcesAllCTLL'])->name('resources.all');
 
         // SUB-ROLES

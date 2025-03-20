@@ -88,18 +88,25 @@ class RoleController extends Controller
     }
   }
 
+  // COMMAND
   public function resourcesCreateCTLL(Request $request){
     try{
-      if (auth()->user()->role->name !== 'Admin') {
-        return response()->json(['error' => 'Unauthorized'], 403);
-      }
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
 
       $key = $request->input('key');
       $name = $request->input('name');
+      $iconSolid = $request->input('icon_solid');
+      $iconOutlined = $request->input('icon_outlined');
+      $path = $request->input('path');
 
       $roleDTO = new RoleDTO();
       $roleDTO->setKey($key);
       $roleDTO->setName($name);
+      $roleDTO->setIconSolid($iconSolid);
+      $roleDTO->setIconOutlined($iconOutlined);
+      $roleDTO->setPath($path);
 
       return $this->roleService->resourcesCreate($roleDTO);
 
@@ -110,11 +117,39 @@ class RoleController extends Controller
     }
   }
 
+  public function resourcesUpdateCTLL(Request $request){
+    try{
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
+
+      $key = $request->input('key');
+      $name = $request->input('name');
+      $iconSolid = $request->input('icon_solid');
+      $iconOutlined = $request->input('icon_outlined');
+      $path = $request->input('path');
+
+      $roleDTO = new RoleDTO();
+      $roleDTO->setKey($key);
+      $roleDTO->setName($name);
+      $roleDTO->setIconSolid($iconSolid);
+      $roleDTO->setIconOutlined($iconOutlined);
+      $roleDTO->setPath($path);
+
+      return $this->roleService->resourcesUpdate($roleDTO);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
   public function permissionsCreateCTLL(Request $request, $resourceId){
     try{
-      if (auth()->user()->role->name !== 'Admin') {
-        return response()->json(['error' => 'Unauthorized'], 403);
-      }
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
 
       $key = $request->input('key');
       $name = $request->input('name');
@@ -160,9 +195,9 @@ class RoleController extends Controller
     // }
 
     try {
-      if (auth()->user()->role->name !== 'Admin') {
-        return response()->json(['error' => 'Unauthorized'], 403);
-      }
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
   
       $request->validate([
         'permission_id' => 'required|exists:permissions,id',
@@ -206,9 +241,9 @@ class RoleController extends Controller
     // }
 
     try {
-      if (auth()->user()->role->name !== 'Admin') {
-        return response()->json(['error' => 'Unauthorized'], 403);
-      }
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
   
       $request->validate([
         'resource_id' => 'required|exists:resources,id',

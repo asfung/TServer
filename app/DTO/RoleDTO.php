@@ -12,6 +12,11 @@ class RoleDTO {
     private $name;
     private $endpoint;
 
+    // resource
+    private $iconSolid;
+    private $iconOutlined;
+    private $path;
+
     /**
      * Get the value of roleId
      */ 
@@ -148,6 +153,66 @@ class RoleDTO {
     public function setMode($mode)
     {
         $this->mode = $mode;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of iconSolid
+     */ 
+    public function getIconSolid()
+    {
+        return $this->iconSolid;
+    }
+
+    /**
+     * Set the value of iconSolid
+     *
+     * @return  self
+     */ 
+    public function setIconSolid($iconSolid)
+    {
+        $this->iconSolid = $iconSolid;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of iconOutlined
+     */ 
+    public function getIconOutlined()
+    {
+        return $this->iconOutlined;
+    }
+
+    /**
+     * Set the value of iconOutlined
+     *
+     * @return  self
+     */ 
+    public function setIconOutlined($iconOutlined)
+    {
+        $this->iconOutlined = $iconOutlined;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of path
+     */ 
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set the value of path
+     *
+     * @return  self
+     */ 
+    public function setPath($path)
+    {
+        $this->path = $path;
 
         return $this;
     }
