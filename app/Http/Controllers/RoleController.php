@@ -145,6 +145,34 @@ class RoleController extends Controller
     }
   }
 
+  public function resourcesDeleteCTLL(Request $request){
+    try{
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
+
+      $key = $request->input('key');
+      $name = $request->input('name');
+      $iconSolid = $request->input('icon_solid');
+      $iconOutlined = $request->input('icon_outlined');
+      $path = $request->input('path');
+
+      $roleDTO = new RoleDTO();
+      $roleDTO->setKey($key);
+      $roleDTO->setName($name);
+      $roleDTO->setIconSolid($iconSolid);
+      $roleDTO->setIconOutlined($iconOutlined);
+      $roleDTO->setPath($path);
+
+      return $this->roleService->resourcesDelete($roleDTO);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
   public function permissionsCreateCTLL(Request $request, $resourceId){
     try{
       // if (auth()->user()->role->name !== 'Admin') {
@@ -162,6 +190,55 @@ class RoleController extends Controller
       $roleDTO->setEndpoint($endpoint);
 
       return $this->roleService->permissionsCreate($roleDTO);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+
+  public function permissionsUpdateCTLL(Request $request){
+    try{
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
+
+      $key = $request->input('key');
+      $name = $request->input('name');
+      $endpoint = $request->input('endpoint');
+
+      $roleDTO = new RoleDTO();
+      $roleDTO->setKey($key);
+      $roleDTO->setName($name);
+      $roleDTO->setEndpoint($endpoint);
+
+      return $this->roleService->permissionsUpdate($roleDTO);
+
+    }catch(\Exception $e){
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function permissionsDeleteCTLL(Request $request){
+    try{
+      // if (auth()->user()->role->name !== 'Admin') {
+      //   return response()->json(['error' => 'Unauthorized'], 403);
+      // }
+
+      $key = $request->input('key');
+      $name = $request->input('name');
+      $endpoint = $request->input('endpoint');
+
+      $roleDTO = new RoleDTO();
+      $roleDTO->setKey($key);
+      $roleDTO->setName($name);
+      $roleDTO->setEndpoint($endpoint);
+
+      return $this->roleService->permissionsDelete($roleDTO);
 
     }catch(\Exception $e){
       return response()->json([

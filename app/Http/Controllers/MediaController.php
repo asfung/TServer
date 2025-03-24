@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Common\ApiCommon;
 use App\DTO\MediaDTO;;
 use Illuminate\Http\Request;
 use App\Services\MediaService;
@@ -16,48 +17,29 @@ class MediaController extends Controller{
     public function uploadFile(Request $request){
         try{
         $request->validate([
-            'file' => 'required|file|mimes:png,jpg,jpeg,gif|max:2048',
-            'type' => 'string',
+            'file' => 'required|file|mimes:png,jpg,jpeg,gif,mp4',
+            // 'file' => 'required|file|mimes:png,jpg,jpeg,gif|max:2048',
+            'type' => 'required|string',
         ]);
 
         $file = $request->file('file');
         $type = $request->input('type');
         // $filePath = $file->getRealPath();
 
-        // if (strpos($file->getMimeType(), 'image/') === 0) {
-        //     if (empty($type)) {
-        //         $type = 'image-post';
-        //     } else {
-        //         $type = 'image-profile';
-        //     }
-        // }
-        // elseif (strpos($file->getMimeType(), 'video/') === 0) {
-        //     if (!empty($type)) {
-        //         $type = 'video';
-        //     }
-        //     // } else {
-        //     //     $type = 'video-profile';
-        //     // }
-        // } else {
-        //     return response()->json([
-        //         'error' => 'The uploaded file must be an image or a video.'
-        //     ], 400);
-        // }
-
-        if(is_null($type)){
+        if($type === 'post') {
             if (strpos($file->getMimeType(), 'image/') === 0) {
                 $type = 'image-post';
             } elseif (strpos($file->getMimeType(), 'video/') === 0) {
                 $type = 'video';
             }
-        }else{
+        } elseif($type === 'profile') {
             $type = 'image-profile';
+        } else {
+            return ApiCommon::sendResponse(null, 'Invalid type specified', 400, false);
         }
 
         $result = $this->mediaService->uploadFile($type, $file);
-
-        return response()->json($result);
-        // return response()->json($file->getMimeType());
+        return $result;
         }catch(\Exception $e){
             return response()->json([
                 'error' => $e->getMessage()
@@ -129,7 +111,7 @@ class MediaController extends Controller{
             $mediaDto->setPost_id($postId);
             $mediaDto->setData($arrayData);
 
-            return $this->mediaService->editMediaPostId($mediaDto);
+            return $this->mediaService->deleteMediaPostId($mediaDto);
         }catch(\Exception $e){
             return response()->json([
                 'error' => $e->getMessage()

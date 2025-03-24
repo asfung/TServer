@@ -328,6 +328,40 @@ class RoleService
     }
   }
 
+  public function resourcesDelete(RoleDTO $roleDTO){
+    try {
+      DB::beginTransaction();
+
+      $key = $roleDTO->getKey();
+      $resource = Resource::where('key', $key)->first();
+      if (!$resource) {
+        return ApiCommon::sendResponse(null, 'resource not exists', 404, false);
+      }
+
+      $permissions = DB::table('permissions')->where('resource_id', $resource->id)->get();
+
+      if ($permissions->isNotEmpty()) {
+        $permissionIds = $permissions->pluck('id')->toArray();
+        DB::table('role_permission')
+          ->whereIn('permission_id', $permissionIds)
+          ->delete();
+      }
+
+      DB::table('role_resource') ->where('resource_id', $resource->id)->delete();
+      DB::table('permissions') ->where('resource_id', $resource->id)->delete();
+
+      // DB::table('role_resource')->where('resource_id', $resource->id)->delete();
+      $resource->delete();
+      DB::commit();
+      return ApiCommon::sendResponse($resource->fresh(), 'resource deleted', 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
   public function permissionsCreate(RoleDTO $roleDTO){
 
     try{
@@ -361,6 +395,55 @@ class RoleService
       ], 500);
     }
   }
+
+  public function permissionsUpdate(RoleDTO $roleDTO){
+    try {
+      DB::beginTransaction();
+
+      $key = $roleDTO->getKey();
+
+      $permission = Permission::where('key', $key)->first();
+      if (!$permission) {
+        return ApiCommon::sendResponse(null, 'permission not exists', 404, false);
+      }
+
+      $permission->name = $roleDTO->getName() ?? $permission->name;
+      $permission->endpoint = $roleDTO->getEndpoint() ?? $permission->endpoint;
+      $permission->save();
+
+      DB::commit();
+
+      return ApiCommon::sendResponse($permission->fresh(), 'permission updated', 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function permissionsDelete(RoleDTO $roleDTO){
+    try {
+      DB::beginTransaction();
+
+      $key = $roleDTO->getKey();
+      $permission = Permission::where('key', $key)->first();
+      if (!$permission) {
+        return ApiCommon::sendResponse(null, 'resource not exists', 404, false);
+      }
+
+      DB::table('role_permission')->where('permission_id', $permission->id)->delete();
+      $permission->delete();
+      DB::commit();
+      return ApiCommon::sendResponse($permission->fresh(), 'permission deleted', 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
 
   public function togglePermission(RoleDTO $roleDTO)
   {

@@ -31,6 +31,7 @@ class MediaService
     {
         $generatedId = Str::uuid()->toString();
         // $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $fullPath = null;
 
         if ($type === 'image-post') {
             $fullPath = "{$this->url}image/post/{$generatedId}.{$file->getClientOriginalExtension()}";
@@ -41,7 +42,6 @@ class MediaService
         } else {
             return ['error' => true, 'message' => 'silahkan pilih tipe nya'];
         }
-
         try {
             $response = $this->client->request('POST', $fullPath, [
                 'headers' => [
@@ -60,6 +60,7 @@ class MediaService
             $result = json_decode($responseBody, true);
 
             $mediaData = [
+                'id' => $generatedId,
                 'original_name' => $file->getClientOriginalName(),
                 'mimetypes' => $file->getMimeType(),
                 'generated_name' => "{$generatedId}.{$file->getClientOriginalExtension()}"
@@ -73,7 +74,7 @@ class MediaService
             $result = $this->insertMedia($mediaData, $additionalData);
 
             // return $response;
-            return ApiCommon::sendResponse($result, 'File Uploaded');
+            return ApiCommon::sendResponse($result, 'File Uploaded as ' . $type);
 
 
             // return $file->getClientOriginalExtension();
@@ -166,22 +167,30 @@ class MediaService
     public function deleteMediaPostId(MediaDTO $mediaDTO){
         try{
             DB::beginTransaction();
-            $arrayData = $mediaDTO->getData();
+            $data = $mediaDTO->getData();
             $postId = $mediaDTO->getPost_id();
             $dataSclicing = [];
 
-            if(is_array($arrayData)){
-                foreach($arrayData as $item){
-                    DB::commit();
-                    $dataSclicing[] = $item['id'];
-                    $mediaPostId = Media::where('id', $item['id'])->first();
-                    $mediaPostId->deleted_at = Carbon::now();
-                    $mediaPostId->save();
-                }
-                return ApiCommon::sendResponse($arrayData, 'Berhasil Menghapus Media item', 201);
-            }else{
-                return ApiCommon::sendResponse($arrayData, 'data is not the array value', 400);
-            }
+            $mediaDelete = Media::where('id', $data)->first();
+            $mediaDelete->deleted_at = Carbon::now();
+            $mediaDelete->save();
+            DB::commit();
+
+            return ApiCommon::sendResponse($mediaDelete, 'Berhasil Menghapus Media item', 200);
+
+            //  MORE THAN 1
+            // if(is_array($data)){
+            //     foreach($data as $item){
+            //         DB::commit();
+            //         $dataSclicing[] = $item['id'];
+            //         $mediaPostId = Media::where('id', $item['id'])->first();
+            //         $mediaPostId->deleted_at = Carbon::now();
+            //         $mediaPostId->save();
+            //     }
+            //     return ApiCommon::sendResponse($data, 'Berhasil Menghapus Media item', 200);
+            // }else{
+            //     return ApiCommon::sendResponse($data, 'data is not the array value', 400);
+            // }
 
         }catch(\Exception $e){
             // ApiCommon::rollback($e->getMessage());

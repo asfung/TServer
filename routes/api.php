@@ -32,8 +32,8 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.check_token');
     // $router->post('test', [MediaController::class, 'test']);
     $router->group(['prefix' => '/media'], function ($router) {
-        $router->post('Upload', [MediaController::class, 'uploadFile']);
-        $router->get('GetFile', [MediaController::class, 'getFile']);
+        $router->post('Upload', [MediaController::class, 'uploadFile'])->name('media.upload');
+        $router->get('GetFile', [MediaController::class, 'getFile'])->name('media.read');
     });
 
     // Permissions and Role_Permission 
@@ -57,6 +57,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         $router->post('Create', [RoleController::class, 'resourcesCreateCTLL'])->name('resources.create');
         $router->post('Update', [RoleController::class, 'resourcesUpdateCTLL'])->name('resources.update');
         $router->post('All', [RoleController::class, 'resourcesAllCTLL'])->name('resources.all');
+        $router->post('Delete', [RoleController::class, 'resourcesDeleteCTLL'])->name('resources.delete');
 
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
@@ -71,9 +72,12 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     // PERMISSIONS
     $router->group(['prefix' => '/permissions'], function($router) {
         $router->post('{resourceId}/Create', [RoleController::class, 'permissionsCreateCTLL'])->name('permissions.create');
+        $router->post('All', [RoleController::class, 'permissionsAllCTLL'])->name('permissions.all');
+        $router->post('Update', [RoleController::class, 'permissionsUpdateCTLL'])->name('permissions.update');
+        $router->post('Delete', [RoleController::class, 'permissionsDeleteCTLL'])->name('permissions.delete');
+
         $router->post('User', [RoleController::class, 'resourcesPermissionUserCTLL'])->name('permissions.user');
         $router->post('User/{roleId}', [RoleController::class, 'resourcesPermissionCTLL'])->name('permissions.resource-permission');
-        $router->post('All', [RoleController::class, 'permissionsAllCTLL'])->name('permissions.all');
  
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
@@ -112,8 +116,8 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
 
         // MEDIA
         $router->group(['prefix' => '/media'], function ($router) {
-            $router->post('/MediaPostIdEdit', [MediaController::class, 'mediaPostIdEditCTLL']);
-            $router->post('/MediaDelete', [MediaController::class, 'mediaPostIdDeleteCTLL']);
+            $router->post('/MediaPostIdEdit', [MediaController::class, 'mediaPostIdEditCTLL'])->name('media.edit_media_post_id');
+            $router->post('/MediaDelete', [MediaController::class, 'mediaPostIdDeleteCTLL'])->name('media.delete');
         });
 
     });
