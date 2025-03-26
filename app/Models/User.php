@@ -65,4 +65,29 @@ class User extends Authenticatable implements JWTSubject
     public function role(){
       return $this->belongsTo(Role::class);
     }
+
+    public function media()
+    {
+      return $this->belongsTo(Media::class, 'profile_image');
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(Follow::class, 'user_id_followed', 'id');
+    }
+
+    public function following()
+    {
+        return $this->hasMany(Follow::class, 'user_id_follower', 'id');
+    }
+
+    public function getFollowersCountAttribute()
+    {
+        return $this->followers()->count();
+    }
+
+    public function getFollowingCountAttribute()
+    {
+        return $this->following()->count();
+    }
 }

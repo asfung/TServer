@@ -21,12 +21,13 @@ class BookmarkService {
                 $bookmarkPost->post_id = $bookmarkDTO->getPost_id();
                 $bookmarkPost->user_id = $bookmarkDTO->getUser_id();
                 $bookmarkPost->save();
-                return ApiCommon::sendResponse($bookmarkPost, 'Berhasil Like Post ', 201);
+                return ApiCommon::sendResponse($bookmarkPost, 'Berhasil Bookmark Post ', 201);
             }else{
                 DB::commit();
-                $isLikeExists->deleted_at = Carbon::now();
-                $isLikeExists->save();
-                return ApiCommon::sendResponse($isLikeExists, 'Berhasil Remove Like Post', 201);
+                // $isLikeExists->deleted_at = Carbon::now();
+                // $isLikeExists->save();
+                $isLikeExists->delete();
+                return ApiCommon::sendResponse($isLikeExists, 'Berhasil Remove Bookmark Post', 201);
             }
         }catch(\Exception $e){
             // ApiCommon::rollback($e->getMessage());

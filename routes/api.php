@@ -10,6 +10,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SelectQueryController;
+use App\Services\SelectQueryService;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,26 +32,17 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.refresh_token');
     $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.check_token');
     // $router->post('test', [MediaController::class, 'test']);
+
+    // USER
+    $router->group(['prefix' => '/user'], function ($router) {
+        $router->get('/{username}', [SelectQueryController::class, 'getUsernameCTLL'])->name('user.username.get');
+    });
+
+    // MEDIA
     $router->group(['prefix' => '/media'], function ($router) {
         $router->post('Upload', [MediaController::class, 'uploadFile'])->name('media.upload');
         $router->get('GetFile', [MediaController::class, 'getFile'])->name('media.read');
     });
-
-    // Permissions and Role_Permission 
-    // $router->group(['prefix' => '/permissions'], function ($router){
-    //     $router->group(['prefix' => '/roles'], function ($router) {
-    //         $router->post('/{role}/permission/toggle', [RoleController::class, 'togglePermissionCTLL'])->name('resource.access.toggle');
-    //     });
-    // });
-
-    // // Resources and Role_Resource
-    // $router->group(['prefix' => '/resources'], function ($router){
-    //     $router->group(['prefix' => '/roles'], function ($router) {
-    //         $router->post('/resource/toggle', [RoleController::class, ''])->name('subresource.create');
-    //     });
-    //     $router->post('/Create', [RoleController::class, ''])->name('resources.create');
-    //     $router->post('/Delete', [RoleController::class, ''])->name('resource.delete');
-    // });
 
     // RESOURCES
     $router->group(['prefix' => '/resources'], function($router) {
@@ -93,20 +85,24 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         $router->post('/All', [RoleController::class, 'getAllRolesCTLL'])->name('roles.all');
     });
 
+    // FOLLOW
+    $router->group(['prefix' => '/follow'], function ($router) {
+        $router->post('/Create', [FollowController::class, 'createCTLL']);
+        $router->post('/Delete', [FollowController::class, 'deleteCTLL']);
+        $router->post('/FollowToggle', [FollowController::class, 'toggleFollowCTLL'])->name('follow.toggle');
+    });
+
+    // POST
     $router->group(['prefix' => '/post'], function ($router) {
         $router->post('/CreatePost', [PostController::class, 'newPostCTLL'])->name('post.create');
-        $router->get('/', [SelectQueryController::class, 'getPostCTLL']);
+        $router->get('/', [SelectQueryController::class, 'getPostCTLL'])->name('post.get');
+        $router->get('/Replies', [SelectQueryController::class, 'getPostReplyCTLL'])->name('post.get.replies');
         $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
         $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL']);
 
-        // FOLLOW
-        $router->group(['prefix' => '/follow'], function ($router) {
-            $router->post('/CreateDelete', [FollowController::class, 'createCTLL']);
-        });
-
         // LIKE
         $router->group(['prefix' => '/like'], function ($router) {
-            $router->post('/Like', [LikeController::class, 'likeToCTLL']);
+            $router->post('/Like', [LikeController::class, 'likeToCTLL'])->name('like.toggle');
         });
 
         // BOOKMARK

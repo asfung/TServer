@@ -9,6 +9,8 @@ class PostDTO {
     private $community_id;
     private $perPage;
     private $post_id;
+    private $type;
+    private $q;
     
 
     /**
@@ -127,6 +129,46 @@ class PostDTO {
     public function setPost_id($post_id)
     {
         $this->post_id = $post_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type
+     */ 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */ 
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of q
+     */ 
+    public function getQ()
+    {
+        return $this->q;
+    }
+
+    /**
+     * Set the value of q
+     *
+     * @return  self
+     */ 
+    public function setQ($q)
+    {
+        $this->q = $q;
 
         return $this;
     }

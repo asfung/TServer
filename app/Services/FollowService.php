@@ -10,6 +10,48 @@ use Illuminate\Support\Facades\DB;
 
 class FollowService {
 
+    public function toggleFollow(FollowDTO $followDTO){
+        try {
+            DB::beginTransaction();
+            $user_id_follower = $followDTO->getUser_id_follower();
+            $user_id_followed = $followDTO->getUser_id_followed();
+
+            if ($user_id_follower === $user_id_followed) {
+                return ApiCommon::sendResponse(null, 'you cannot follow yourself, are you lonely bruh?', 400, false);
+            }
+
+            $userFollow = Follow::where('user_id_follower', $user_id_follower)
+                ->where('user_id_followed', $user_id_followed)
+                ->first();
+
+            if ($userFollow) {
+                if($userFollow->deleted_at !== null){
+                    $userFollow->deleted_at = null;
+                    $userFollow->save();
+                    DB::commit();
+                    return ApiCommon::sendResponse($userFollow, 'followed', 200);
+                }else{
+                    $userFollow->deleted_at = Carbon::now();
+                    $userFollow->save();
+                    DB::commit();
+                    return ApiCommon::sendResponse($userFollow, 'unfollowed', 200);
+                }
+            } else {
+                $follow = new Follow();
+                $follow->user_id_follower = $user_id_follower;
+                $follow->user_id_followed = $user_id_followed;
+                $follow->save();
+                DB::commit();
+                return ApiCommon::sendResponse($follow, 'new followed', 201);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function create(FollowDTO $followDTO){
         try{
             DB::beginTransaction();

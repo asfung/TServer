@@ -14,6 +14,25 @@ class FollowController extends Controller{
         $this->followService = $followService;
     }
 
+    public function toggleFollowCTLL(Request $request){
+        try {
+            $validated = $request->validate([
+                'user_id_follower' => 'nullable', // the user who is following
+                'user_id_followed' => 'required', // the user who is being followed
+            ]);
+
+            $followDTO = new FollowDTO();
+            $followDTO->setUser_id_follower($validated['user_id_follower'] ?? ApiCommon::getUserId());
+            $followDTO->setUser_id_followed($validated['user_id_followed']);
+
+            return $this->followService->toggleFollow($followDTO);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function createCTLL(Request $request){
         try{
             $user_id_follower = ApiCommon::getUserId();

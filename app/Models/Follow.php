@@ -11,4 +11,11 @@ class Follow extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
 
+    public function follower(){
+        return $this->belongsTo(User::class, 'user_id_follower', 'id');
+    }
+    public function followed(){
+        return $this->belongsTo(User::class, 'user_id_followed', 'id');
+    }
+
 }

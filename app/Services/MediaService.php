@@ -73,6 +73,16 @@ class MediaService
 
             $result = $this->insertMedia($mediaData, $additionalData);
 
+            if ($type === 'image-profile') {
+                $userId = auth()->id(); 
+                $user = \App\Models\User::find($userId);
+                if ($user) {
+                    $user->profile_image = $generatedId;
+                    $user->save();
+                    return ApiCommon::sendResponse($result, 'image profile changed');
+                }
+            }
+
             // return $response;
             return ApiCommon::sendResponse($result, 'File Uploaded as ' . $type);
 

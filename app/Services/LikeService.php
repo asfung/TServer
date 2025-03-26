@@ -13,7 +13,7 @@ class LikeService {
     public function store_and_scratchOut(LikeDTO $likeDTO){
         try{
             DB::beginTransaction();
-            $isLikeExists = Like::where('user_id', $likeDTO->getUser_id())->first();
+            $isLikeExists = Like::where('user_id', $likeDTO->getUser_id())->where('post_id', $likeDTO->getPost_id())->first();
             if($isLikeExists === null){
                 DB::commit();
                 $likePost = new Like();
@@ -23,8 +23,9 @@ class LikeService {
                 return ApiCommon::sendResponse($likePost, 'Berhasil Like Post ', 201);
             }else{
                 DB::commit();
-                $isLikeExists->deleted_at = Carbon::now();
-                $isLikeExists->save();
+                // $isLikeExists->deleted_at = Carbon::now();
+                // $isLikeExists->save();
+                $isLikeExists->delete();
                 return ApiCommon::sendResponse($isLikeExists, 'Berhasil Remove Like Post', 201);
             }
         }catch(\Exception $e){
