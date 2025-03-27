@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Common\ApiCommon;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -83,11 +85,28 @@ class User extends Authenticatable implements JWTSubject
 
     public function getFollowersCountAttribute()
     {
-        return $this->followers()->count();
+        return $this->followers()->whereNull('deleted_at')->count();
     }
 
     public function getFollowingCountAttribute()
     {
-        return $this->following()->count();
+        return $this->following()->whereNull('deleted_at')->count();
+    }
+
+    // TODO: make it perpage 
+    public function interactions()
+    {
+      $likedPostIds = $this->hasManyThrough(Post::class, Like::class, 'user_id', 'id', 'id', 'post_id')->pluck('posts.id');
+      $repliedPostIds = $this->hasMany(Post::class, 'user_id')->whereNotNull('parent_id')->where('user_id', '!=', ApiCommon::getUserId())->pluck('id');
+      $repostedPostIds = $this->hasManyThrough(Post::class, Repost::class, 'user_id', 'id', 'id', 'post_id')->pluck('posts.id');
+      $followingPostIds = Post::whereIn('user_id', $this->following()->pluck('user_id_followed'))->pluck('id');
+
+      return $likedPostIds
+        ->merge($repliedPostIds)
+        ->merge($repostedPostIds)
+        ->merge($followingPostIds)
+        ->unique()
+        ->values()
+        ->map(fn($id) => (string) $id);
     }
 }

@@ -46,9 +46,9 @@ class SelectQueryService{
               break;
 
             case 'reposts':
-                $query->whereHas('reposts', function ($q) use ($userId) {
-                  $q->where('user_id', $userId);
-                });
+              $query->whereHas('reposts', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+              });
               break;
 
             case 'likes':
@@ -57,6 +57,38 @@ class SelectQueryService{
               });
               break;
 
+            case 'following':
+              $query->whereHas('user', function ($q) use ($userId) {
+                $q->whereHas('followers', function ($q) use ($userId) {
+                  $q->where('user_id_follower', $userId);
+                });
+              });
+              // $query->whereHas('user.followers', function ($q) use ($userId) {
+              //   $q->where('user_id_follower', $userId);
+              // });
+              break;
+            
+            case 'foryou':
+              // return User::find($userId)->interactions();
+              // $post = $query->select('id', 'content')->whereNull('deleted_at')->get();
+              // return $post;
+
+              // $postIds = [
+              //   "151626773895839744",
+              //   "162461095938752512",
+              //   "162461870895136768",
+              //   "162463491943301120",
+              //   "151620593744084992",
+              //   "151620743736590336",
+              //   "151636214800187392",
+              //   "151637575801503744",
+              //   "152367054635139072"
+              // ];
+              $postIds = User::find($userId)->interactions();
+
+              $query->whereIn('id', $postIds);
+
+              break;
 
             case 'replies':
               $query->where('parent_id', '!=', null)
@@ -69,9 +101,7 @@ class SelectQueryService{
               break;
 
             default:
-              return response()->json([
-                'error' => 'Invalid type provided'
-              ], 400);
+              return ApiCommon::sendResponse(null, 'Invalid type provided!', 400, false);
           }
         }
 

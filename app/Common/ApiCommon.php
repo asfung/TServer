@@ -27,6 +27,7 @@ class ApiCommon
   {
       $response = [
           'success' => true,
+          '_typename' => 'PaginatedData',
           'data' => $paginator->items(), 
           'meta' => [
               'current_page' => $paginator->currentPage(),

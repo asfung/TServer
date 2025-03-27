@@ -24,6 +24,11 @@ class Post extends Model
     {
         return $this->hasMany(Post::class, 'parent_id');
     }
+    public function repliesBy()
+    {
+        $authUserId = auth()->user()?->id;
+        return $this->hasMany(Post::class, 'parent_id')->where('user_id', '!=', $authUserId);
+    }
 
     public function likes(){
         return $this->hasMany(Like::class, 'post_id', 'id');

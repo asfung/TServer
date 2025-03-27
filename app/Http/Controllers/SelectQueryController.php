@@ -23,7 +23,7 @@ class SelectQueryController extends Controller
                 'post_id' => 'nullable|integer',
                 'user_id' => 'nullable',
                 'q' => 'nullable|string',
-                'type' => 'nullable|string|in:bookmarks,reposts,replies,likes,post', 
+                'type' => 'nullable|string|in:bookmarks,reposts,replies,likes,post,following,foryou', 
                 'per_page' => 'nullable|integer|min:1',
             ]);
 

@@ -28,12 +28,14 @@ class PostController extends Controller
       $content = $request->input('content');
       $parent_id = $request->input('parent_id');
       $community_id = $request->input('community_id');
+      $for = $request->has('_for') ? $request->input('_for') : null;
 
       $postDTO = new PostDTO();
       $postDTO->setUser_id(ApiCommon::getUserId());
       $postDTO->setContent($content);
       $postDTO->setParent_id($parent_id);
       $postDTO->setCommunity_id($community_id);
+      $postDTO->setFor($for);
 
       return $this->postService->newPost($postDTO);
 
@@ -136,27 +138,6 @@ class PostController extends Controller
 
     } catch (\Exception $e) {
       // ApiCommon::rollback($e->getMessage());
-      return response()->json([
-        'error' => $e->getMessage()
-      ], 500);
-    }
-  }
-
-
-  // QUERY
-  public function getPostCTLL(Request $request){
-    try {
-      $request->validate([
-        'post_id' => 'required',
-      ]);
-      $post_id = $request->input('post_id');
-
-      $postDTO = new PostDTO();
-      $postDTO->setPost_id($post_id);
-      $postDTO->setUser_id(ApiCommon::getUserId());
-
-      return $this->postService->getPost($postDTO);
-    } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
       ], 500);

@@ -11,6 +11,7 @@ class PostDTO {
     private $post_id;
     private $type;
     private $q;
+    private $for;
     
 
     /**
@@ -169,6 +170,26 @@ class PostDTO {
     public function setQ($q)
     {
         $this->q = $q;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of for
+     */ 
+    public function getFor()
+    {
+        return $this->for;
+    }
+
+    /**
+     * Set the value of for
+     *
+     * @return  self
+     */ 
+    public function setFor($for)
+    {
+        $this->for = $for;
 
         return $this;
     }

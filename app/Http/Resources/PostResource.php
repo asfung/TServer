@@ -29,7 +29,7 @@ class PostResource extends JsonResource
             'repost_count' => $this->getRepostCount(),
             'replies_count' => $this->replies->count(),
             'likes' => $this->likes,
-            'media' => MediaResource::collection($this->media),
+            'media' => MediaResource::collection($this->media->whereNull('deleted_at')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
