@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\UserDTO;
+use App\Http\Resources\AuthResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +23,7 @@ class AuthService
         return response()->json([
           'status' => 'success',
           'message' => 'Token is valid.',
-          'user' => $user
+          'user' => new AuthResource($user),
         ]);
       } catch (TokenExpiredException $e) {
         return response()->json([
@@ -55,7 +56,7 @@ class AuthService
         $user = JWTAuth::setToken($newToken)->toUser();
         return response()->json([
           'status' => 'success',
-          'user' => $user,
+          'user' => new AuthResource($user),
           'authorization' => [
             'token' => $newToken,
             'type' => 'bearer',
@@ -114,7 +115,7 @@ class AuthService
       $user = Auth::user();
       return response()->json([
         'status' => 'success',
-        'user' => $user,
+        'user' => new AuthResource($user),
         'authorization' => [
           'token' => $token,
           'type' => 'bearer',
@@ -142,7 +143,7 @@ class AuthService
       return response()->json([
         'status' => 'success',
         'message' => 'User created successfully',
-        'user' => $user,
+        'user' => new AuthResource($user),
         'authorization' => [
           'token' => $token,
           'type' => 'bearer',
