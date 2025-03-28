@@ -75,22 +75,22 @@ class User extends Authenticatable implements JWTSubject
 
     public function followers()
     {
-        return $this->hasMany(Follow::class, 'user_id_followed', 'id');
+      return $this->hasMany(Follow::class, 'user_id_followed', 'id');
     }
 
     public function following()
     {
-        return $this->hasMany(Follow::class, 'user_id_follower', 'id');
+      return $this->hasMany(Follow::class, 'user_id_follower', 'id');
     }
 
     public function getFollowersCountAttribute()
     {
-        return $this->followers()->whereNull('deleted_at')->count();
+      return $this->followers()->whereNull('deleted_at')->count();
     }
 
     public function getFollowingCountAttribute()
     {
-        return $this->following()->whereNull('deleted_at')->count();
+      return $this->following()->whereNull('deleted_at')->count();
     }
 
     // TODO: make it perpage 

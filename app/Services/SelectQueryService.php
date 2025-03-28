@@ -18,11 +18,31 @@ class SelectQueryService{
   public function getPost(PostDTO $postDTO){
     try {
       if ($postDTO->getPost_id()) {
-        $posts = Post::where('id', $postDTO->getPost_id())
-          ->whereNull('deleted_at')
-          ->get();
+        // $posts = Post::where('id', $postDTO->getPost_id())
+        //   ->whereNull('deleted_at')
+        //   ->get();
 
-        return ApiCommon::sendResponse(PostResource::collection($posts), 'Data Berhasil Didapat !');
+        $postId = $postDTO->getPost_id();
+        $posts = [];
+
+        while ($postId) {
+            $post = Post::where('id', $postId)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if ($post) {
+                $posts[] = $post;
+                $postId = $post->parent_id; 
+            } else {
+                break;
+            }
+        }
+
+        if (empty($posts)) {
+            return ApiCommon::sendResponse(null, 'No posts found!', 404, false);
+        }
+
+        return ApiCommon::sendResponse(PostResource::collection(collect($posts)), 'Data Berhasil Didapat !', 200, true, true);
       } else {
         $type = $postDTO->getType();
         $userId = $postDTO->getUser_id();
@@ -113,7 +133,7 @@ class SelectQueryService{
           return ApiCommon::sendResponse(null, 'No posts found!', 404, false);
         }
 
-        return ApiCommon::sendPaginatedResponse(PostResource::collection($posts), 'Data Berhasil Didapat !');
+        return ApiCommon::sendPaginatedResponse(PostResource::collection($posts), 'Data Berhasil Didapat !', 200);
       }
     } catch (\Exception $e) {
       return response()->json([

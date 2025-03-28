@@ -8,7 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiCommon
 {
-  public static function sendResponse($result, $message, $code = 200, $isSuccess = true)
+  public static function sendResponse($result, $message, $code = 200, $isSuccess = true, $showLength = false)
   {
     $response = [
       'success' => $isSuccess,
@@ -16,6 +16,9 @@ class ApiCommon
     ];
     if (!empty($message)) {
       $response['message'] = $message;
+    }
+    if ($showLength) {
+      $response['length'] = is_array($result) || $result instanceof \Countable ? count($result) : 0; 
     }
     if($result === null){
       unset($response['data']);
