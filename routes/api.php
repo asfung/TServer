@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\RepostController;
 use App\Http\Controllers\SelectQueryController;
 use App\Services\SelectQueryService;
 
@@ -29,8 +30,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->post('Logout', [AuthController::class, 'logout']);
-    $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.refresh_token');
-    $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.check_token');
+    $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.token.refresh');
+    $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.token.check');
     // $router->post('test', [MediaController::class, 'test']);
 
     // USER
@@ -69,7 +70,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         $router->post('Delete', [RoleController::class, 'permissionsDeleteCTLL'])->name('permissions.delete');
 
         $router->post('User', [RoleController::class, 'resourcesPermissionUserCTLL'])->name('permissions.user');
-        $router->post('User/{roleId}', [RoleController::class, 'resourcesPermissionCTLL'])->name('permissions.resource-permission');
+        $router->post('User/{roleId}', [RoleController::class, 'resourcesPermissionCTLL'])->name('permissions.user.role');
  
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
@@ -96,18 +97,23 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->group(['prefix' => '/post'], function ($router) {
         $router->post('/CreatePost', [PostController::class, 'newPostCTLL'])->name('post.create');
         $router->get('/', [SelectQueryController::class, 'getPostCTLL'])->name('post.get');
-        $router->get('/Replies', [SelectQueryController::class, 'getPostReplyCTLL'])->name('post.get.replies');
+        $router->get('/Replies', [SelectQueryController::class, 'getPostReplyCTLL'])->name('post.replies.get');
         $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
-        $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL']);
+        $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL'])->name('post.delete');
+
+        // REPOST
+        $router->group(['prefix' => '/repost'], function ($router) {
+            $router->post('/RepostToggle', [RepostController::class, 'repostToggleCTLL'])->name('post.repost.toggle');
+        });
 
         // LIKE
         $router->group(['prefix' => '/like'], function ($router) {
-            $router->post('/Like', [LikeController::class, 'likeToCTLL'])->name('like.toggle');
+            $router->post('/Like', [LikeController::class, 'likeToCTLL'])->name('post.like.toggle');
         });
 
         // BOOKMARK
         $router->group(['prefix' => '/bookmark'], function ($router) {
-            $router->post('/CreateDelete', [BookmarkController::class, 'storeBookmarkCTLL']);
+            $router->post('/ToggleBookmark', [BookmarkController::class, 'storeBookmarkCTLL'])->name('post.bookmark.toggle');
         });
 
         // MEDIA

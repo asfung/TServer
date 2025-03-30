@@ -4,6 +4,8 @@ namespace App\Common;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiCommon
@@ -66,6 +68,21 @@ class ApiCommon
 
   public static function getUserId(){
     return auth()->user()->id;
+  }
+
+  public static function encryptUserId($userId) {
+    $key = '__n0t1f1c4t10n'; 
+    $iv = '1223334444555556'; 
+    $key = substr(hash('sha256', $key, true), 0, 32);
+    $iv = substr($iv, 0, 16);
+
+    $encrypted = openssl_encrypt($userId, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+    
+    return base64_encode($encrypted);  
+  }
+
+  public static function decryptUserId(string $encryptedId): string {
+    return Crypt::decryptString($encryptedId);
   }
 
 }

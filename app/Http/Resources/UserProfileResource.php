@@ -14,15 +14,20 @@ class UserProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $isMe = auth()->check() && auth()->id() === $this->id;
         return [
             'id' => $this->id,
             'display_name' => $this->display_name,
-            'followers_count' => $this->getFollowersCountAttribute(),
-            'following_count' => $this->getFollowingCountAttribute(),
             'username' => $this->username,
+            'badge' => $this->badge,
             'bio' => $this->bio,
             'address' => $this->address,
+            'followers_count' => $this->getFollowersCountAttribute(),
+            'following_count' => $this->getFollowingCountAttribute(),
+            // 'followers' => $this->followers,
+            'followed' => $this->getIsFollowedAttribute(),
             'profile_image' => $this->profile_image ? new MediaResource($this->media) : null,
+            'is_me' => $isMe,
         ];
     }
 }

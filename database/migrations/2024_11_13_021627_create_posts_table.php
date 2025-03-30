@@ -12,16 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            // $table->id();
-            $table->snowflake()->id();
-            $table->string('user_id');
+            // $table->snowflake()->id();
+            $table->snowflake()->primary();
+            $table->uuid('user_id');
             $table->text('content')->nullable();
             $table->string('parent_id')->nullable();
             // $table->string('liked_count')->nullable();
             // $table->string('replied_count')->nullable();
             // $table->string('reposted_count')->nullable();
             $table->string('community_id')->nullable();
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
         });
     }
 

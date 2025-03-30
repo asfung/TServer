@@ -6,8 +6,11 @@ use Carbon\Carbon;
 use App\Models\Tag;
 use App\DTO\PostDTO;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\Quote;
 use App\Common\ApiCommon;
+use App\Events\PostNotificationEvent;
+use App\Notifications\PostNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -69,6 +72,22 @@ class PostService
         return ApiCommon::sendResponse($newPost, 'Berhasil Membuat Quote', 201);
       }
 
+      $user = User::find($newPost->user_id);
+      $followers = $user->followers;
+      foreach ($followers as $follow) {
+        $followerUser = $follow->follower; // Get the User model
+        $message = "User {$user->username} created a new post! " . $followerUser->id;
+    
+        // Dispatch WebSocket event
+        event(new PostNotificationEvent($user, $followerUser->id, $message));
+    
+        // Store notification in the database
+        $followerUser->notify(new PostNotification([
+            'user' => $user,
+            'message' => $message
+        ]));
+    }
+    
 
       return ApiCommon::sendResponse($newPost, 'Berhasil Membuat Post', 201);
     } catch (\Exception $e) {

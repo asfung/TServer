@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\DTO\UserDTO;
-use App\Http\Resources\AuthResource;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\AuthResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
@@ -130,13 +131,14 @@ class AuthService
 
   public function register(UserDTO $userDTO)
   {
+    $userRoleId = DB::table('roles')->where('name', 'User')->value('id');
     try {
       $user = User::create([
         'display_name' => $userDTO->getDisplay_name(),
         'username' => $userDTO->getUsername(),
         'email' => $userDTO->getEmail(),
         'password' => Hash::make($userDTO->getPassword()),
-        'role_id' => 5,
+        'role_id' => $userRoleId,
       ]);
 
       $token = Auth::login($user);

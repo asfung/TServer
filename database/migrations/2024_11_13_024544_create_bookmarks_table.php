@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('bookmarks', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('post_id');
-            $table->string('user_id');
+            // $table->bigInteger('post_id');
+            $table->foreignSnowflake('post_id')->constrained()->cascadeOnDelete(); 
+            $table->uuid('user_id');
             $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

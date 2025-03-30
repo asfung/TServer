@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('key')->unique();
             $table->string('name');
-            $table->string('endpoint');
+            $table->string('endpoint')->unique();
             $table->foreignId('resource_id')->constrained();
             $table->timestamps();
         });

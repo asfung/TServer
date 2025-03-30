@@ -75,4 +75,22 @@ class Post extends Model
         return $this->reposts()->where('user_id', $userId)->get();
     }
 
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class, 'post_id', 'id')
+            ->whereHas('post', function ($query) {
+                $query->whereNotNull('parent_id');
+            })
+            ->whereNull('deleted_at');
+    }
+
+    //  DEPRECATED
+    public function quoteParentPost()
+    {
+        return $this->belongsTo(Post::class, 'parent_id', 'id')
+            ->whereHas('quotes', function ($query) {
+                $query->whereColumn('quotes.post_id', 'posts.id');
+            });
+    }
+
 }

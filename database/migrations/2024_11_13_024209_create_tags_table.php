@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('post_id');
+            // $table->bigInteger('post_id');
+            $table->foreignSnowflake('post_id')->constrained()->cascadeOnDelete(); 
             $table->string('tag_name');
             $table->string('tag_formatted');
             // $table->string('type');
             $table->enum('type', ['mention', 'hashtag']);
             $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
+
+
         });
     }
 

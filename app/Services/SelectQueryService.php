@@ -104,9 +104,9 @@ class SelectQueryService{
               //   "151637575801503744",
               //   "152367054635139072"
               // ];
-              $postIds = User::find($userId)->interactions();
+              // $postIds = User::find($userId)->interactions();
 
-              $query->whereIn('id', $postIds);
+              // $query->whereIn('id', $postIds);
 
               break;
 
@@ -127,6 +127,7 @@ class SelectQueryService{
 
         $posts = $query->whereNull('deleted_at')
           ->orderBy('created_at', 'desc')
+          // ->whereNull('parent_id')
           ->paginate($postDTO->getPerPage());
 
         if ($posts->isEmpty()) {

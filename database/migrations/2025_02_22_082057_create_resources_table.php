@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('key')->unique();
             $table->string('name')->unique();
+            $table->string('icon_solid')->nullable();
+            $table->string('icon_outlined')->nullable();
+            $table->string('path')->nullable();
             $table->timestamps();
         });
     }

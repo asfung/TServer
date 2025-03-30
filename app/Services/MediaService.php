@@ -77,8 +77,15 @@ class MediaService
                 $userId = auth()->id(); 
                 $user = \App\Models\User::find($userId);
                 if ($user) {
+                    if (!is_null($user->profile_image)) {
+                        $oldMedia = Media::where('id', $user->profile_image)->first();
+                        if ($oldMedia) {
+                            $oldMedia->delete(); 
+                        }
+                    }
                     $user->profile_image = $generatedId;
                     $user->save();
+    
                     return ApiCommon::sendResponse($result, 'image profile changed');
                 }
             }

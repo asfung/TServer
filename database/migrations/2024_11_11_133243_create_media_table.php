@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('original_name');
             $table->string('generated_name');
             $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 
