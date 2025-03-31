@@ -12,6 +12,8 @@ class PostDTO {
     private $type;
     private $q;
     private $for;
+    private $activity;
+    private $media;
     
 
     /**
@@ -190,6 +192,46 @@ class PostDTO {
     public function setFor($for)
     {
         $this->for = $for;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of activity
+     */ 
+    public function getActivity()
+    {
+        return $this->activity;
+    }
+
+    /**
+     * Set the value of activity
+     *
+     * @return  self
+     */ 
+    public function setActivity($activity)
+    {
+        $this->activity = $activity;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of media
+     */ 
+    public function getMedia()
+    {
+        return $this->media;
+    }
+
+    /**
+     * Set the value of media
+     *
+     * @return  self
+     */ 
+    public function setMedia($media)
+    {
+        $this->media = $media;
 
         return $this;
     }

@@ -7,12 +7,14 @@ use App\Models\Tag;
 use App\DTO\PostDTO;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Media;
 use App\Models\Quote;
 use App\Common\ApiCommon;
-use App\Events\PostNotificationEvent;
-use App\Notifications\PostNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\PostResource;
+use App\Events\PostNotificationEvent;
+use App\Notifications\PostNotification;
 
 class PostService
 {
@@ -23,6 +25,7 @@ class PostService
       DB::beginTransaction();
 
       $for = $postDTO->getFor();
+      $media = $postDTO->getMedia();
 
       $hashtagPattern = '/#(\w+)/';
       $mentionPattern = '/@(\w+)/';
@@ -41,6 +44,18 @@ class PostService
       $newPost->community_id = $postDTO->getCommunity_id();
 
       $newPost->save();
+
+      if(is_array($media) && $media){
+        foreach ($media as $item) {
+          DB::commit();
+          $dataSclicing[] = $item['id'];
+          $mediaPostId = Media::where('id', $item['id'])->first();
+          $mediaPostId->post_id = $newPost->id;
+          $mediaPostId->save();
+        }
+      } else {
+        
+      }
 
       // hashtags
       foreach ($hashtags[1] as $hashtag) {
@@ -87,9 +102,9 @@ class PostService
             'message' => $message
         ]));
     }
-    
+    $postCreated = new PostResource($newPost);
 
-      return ApiCommon::sendResponse($newPost, 'Berhasil Membuat Post', 201);
+    return ApiCommon::sendResponse($postCreated, 'Berhasil Membuat Post', 201);
     } catch (\Exception $e) {
       // ApiCommon::rollback($e->getMessage());
       DB::rollBack();

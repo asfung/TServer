@@ -28,7 +28,7 @@ class ApiCommon
     return response()->json($response, $code);
   }
 
-  public static function sendPaginatedResponse($paginator, $message = "", $code = 200)
+  public static function sendPaginatedResponse($paginator, $message = "", $code = 200, $extraData = [])
   {
       $response = [
           'success' => true,
@@ -43,7 +43,10 @@ class ApiCommon
       ];
 
       if (!empty($message)) {
-          $response['message'] = $message;
+        $response['message'] = $message;
+      }
+      if(!empty($extraData)){
+        $response = array_merge($response, $extraData);
       }
 
       return response()->json($response, $code);

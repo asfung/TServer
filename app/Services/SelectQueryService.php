@@ -145,24 +145,67 @@ class SelectQueryService{
 
   public function getPostReply(PostDTO $postDTO){
     try {
-      $query = Post::with(['likes', 'bookmarks'])
-        ->where('parent_id', $postDTO->getPost_id())
-        ->whereNull('deleted_at')
-        ->orderBy('created_at', 'desc');
+      $parentId = $postDTO->getPost_id();
+      $isActivity = $postDTO->getActivity(); // true/false
+      $parentPost = Post::find($parentId);
 
-      $posts = $query->paginate($postDTO->getPerPage());
-
-      if ($posts->isEmpty()) {
-        return ApiCommon::sendResponse(null, 'No post replies found!', 404, false);
+      if (!$parentPost) {
+        return ApiCommon::sendResponse(null, 'Post not found!', 404, false);
       }
 
-      return ApiCommon::sendPaginatedResponse(PostResource::collection($posts), 'Data Berhasil Didapat !');
+      $userIdParentPost = $parentPost->user_id;
+      $activityPost = collect();
+      $firstActivityPostId = null;
+
+      $getActivity = function ($parentId) use (&$getActivity, $userIdParentPost, &$activityPost, &$firstActivityPostId) {
+        $posts = Post::with(['likes', 'bookmarks'])
+          ->where('parent_id', $parentId)
+          ->where('user_id', $userIdParentPost)
+          ->whereNull('deleted_at')
+          ->orderBy('created_at', 'asc') 
+          ->get();
+        
+        if ($posts->count() > 0) {
+          $firstReply = $posts->first(); 
+          if ($firstActivityPostId === null) {
+            $firstActivityPostId = $firstReply->id;
+          }
+          $activityPost->push(new PostResource($firstReply));
+          if ($posts->count() > 0) {
+            $getActivity($firstReply->id);
+          }
+        }
+      };
+
+      if ($isActivity) {
+        if ($activityPost->count() > 0) {
+          $getActivity($parentId);
+          return ApiCommon::sendResponse($activityPost, 'berhasil', 200);
+        } else {
+          return ApiCommon::sendResponse(null, 'not found', 404, false);
+        }
+      }
+
+      $replies = Post::with(['likes', 'bookmarks'])
+        ->where('parent_id', $parentId)
+        ->whereNull('deleted_at')
+        ->when($firstActivityPostId, function ($query) use ($firstActivityPostId, $userIdParentPost) {
+          return $query->where(function ($q) use ($firstActivityPostId, $userIdParentPost) {
+            $q->where('id', '!=', $firstActivityPostId) 
+              ->orWhere('user_id', '!=', $userIdParentPost); 
+          });
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+      return ApiCommon::sendResponse(PostResource::collection($replies), 'success', 200);
     } catch (\Exception $e) {
-      return response()->json([
-        'error' => $e->getMessage()
-      ], 500);
+      return ApiCommon::sendResponse(null, $e->getMessage(), 500, false);
     }
   }
+  
+
+
 
   public function getPostBookmarks(PostDTO $postDTO){
     try {
@@ -205,3 +248,55 @@ class SelectQueryService{
   }
 
 }
+
+
+
+
+// ABANDONED
+
+// TREE ACTIVITY REPLIES
+// public function getPostReply(PostDTO $postDTO){
+//   try {
+//     $parentId = $postDTO->getPost_id();
+//     $isActivity = $postDTO->getActivity(); // true/false
+//     $parentPost = Post::find($parentId);
+//     $userIdParentPost = $parentPost->user_id;
+
+//     $query = Post::with(['likes', 'bookmarks'])
+//       ->where('parent_id', $parentId)
+//       ->whereNull('deleted_at')
+//       ->orderBy('created_at', 'desc');
+
+//     $posts = $query->paginate($postDTO->getPerPage());
+//     $getActivity = function ($parentId) use (&$getActivity, $userIdParentPost) {
+//       return Post::with(['likes', 'bookmarks'])
+//         ->where('parent_id', $parentId)
+//         ->where('user_id', $userIdParentPost)
+//         ->whereNull('deleted_at')
+//         ->orderBy('created_at', 'desc')
+//         ->get()
+//         ->map(function ($post) use ($getActivity) {
+//           $post->replies = $getActivity($post->id);
+//           return $post;
+//         });
+//     };
+
+//   $activityPost = $getActivity($parentId);
+
+
+//     if ($posts->isEmpty()) {
+//       return ApiCommon::sendResponse(null, 'No found!', 404, false);
+//     }
+
+//     if(!$isActivity){
+//       return ApiCommon::sendPaginatedResponse(PostResource::collection($posts), 'Data Berhasil Didapat !');
+//     }else{
+//       // activity
+//       return ApiCommon::sendResponse($activityPost, 'berhasil');
+//     }
+//   } catch (\Exception $e) {
+//     return response()->json([
+//       'error' => $e->getMessage()
+//     ], 500);
+//   }
+// }

@@ -29,7 +29,7 @@ class PostResource extends JsonResource
             'liked' => $user ? $this->likedBy($user) : false, 
             'like_count' => $this->getLikeCount(),
             'repost_count' => $this->getRepostCount(),
-            'replies_count' => $this->replies->count(),
+            'reply_count' => $this->replies->count(),
             'likes' => $this->likes,
             'media' => MediaResource::collection($this->media->whereNull('deleted_at')),
             '__typename' => $this->quotes->isNotEmpty() ? 'quote' : ($this->parent_id ? ($this->reposts->isNotEmpty() ? 'repost' : 'reply') : 'post'),

@@ -54,10 +54,12 @@ class SelectQueryController extends Controller
 
             $perPage = $request->input('per_page', 10); 
             $post_id = $request->input('post_id');
+            $activity = $request->input('activity', false);
 
             $postDto = new PostDTO();
             $postDto->setPerPage($perPage);
             $postDto->setPost_id($post_id);
+            $postDto->setActivity($activity);
 
             return $this->selectQueryService->getPostReply($postDto);
 

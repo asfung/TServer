@@ -24,11 +24,13 @@ class PostController extends Controller
         'content' => 'nullable',
         'parent_id' => 'nullable',
         'community_id' => 'nullable',
+        'media' => 'nullable|array',
       ]);
       $content = $request->input('content');
       $parent_id = $request->input('parent_id');
       $community_id = $request->input('community_id');
       $for = $request->has('_for') ? $request->input('_for') : null;
+      $media = $request->has('media') ? $request->input('media') : null;
 
       $postDTO = new PostDTO();
       $postDTO->setUser_id(ApiCommon::getUserId());
@@ -36,6 +38,7 @@ class PostController extends Controller
       $postDTO->setParent_id($parent_id);
       $postDTO->setCommunity_id($community_id);
       $postDTO->setFor($for);
+      $postDTO->setMedia($media);
 
       return $this->postService->newPost($postDTO);
 
