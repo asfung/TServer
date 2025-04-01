@@ -14,7 +14,7 @@ class BookmarkService {
     public function store_and_scratchOut(BookmarkDTO $bookmarkDTO){
         try{
             DB::beginTransaction();
-            $isLikeExists = Bookmark::where('user_id', $bookmarkDTO->getUser_id())->first();
+            $isLikeExists = Bookmark::where('user_id', $bookmarkDTO->getUser_id())->where('post_id', $bookmarkDTO->getPost_id())->first();
             if($isLikeExists === null){
                 Db::commit();
                 $bookmarkPost = new Bookmark();

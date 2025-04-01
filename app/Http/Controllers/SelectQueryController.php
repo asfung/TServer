@@ -25,6 +25,7 @@ class SelectQueryController extends Controller
                 'q' => 'nullable|string',
                 'type' => 'nullable|string|in:bookmarks,reposts,replies,likes,post,following,foryou', 
                 'per_page' => 'nullable|integer|min:1',
+                'sort' => 'nullable',
             ]);
 
             $post_id = $request->input('post_id');
@@ -55,11 +56,13 @@ class SelectQueryController extends Controller
             $perPage = $request->input('per_page', 10); 
             $post_id = $request->input('post_id');
             $activity = $request->input('activity', false);
+            $sort = $request->input('sort', 'desc');
 
             $postDto = new PostDTO();
             $postDto->setPerPage($perPage);
             $postDto->setPost_id($post_id);
             $postDto->setActivity($activity);
+            $postDto->setSort($sort);
 
             return $this->selectQueryService->getPostReply($postDto);
 

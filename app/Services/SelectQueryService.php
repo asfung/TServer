@@ -60,9 +60,22 @@ class SelectQueryService{
         if ($type) {
           switch ($type) {
             case 'bookmarks':
-              $query->whereHas('bookmarks', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-              });
+              // $query->whereHas('bookmarks', function ($q) use ($userId) {
+              //   $q->where('user_id', $userId);
+              // });
+              $query->join('bookmarks', 'posts.id', '=', 'bookmarks.post_id')
+                ->where('bookmarks.user_id', $userId)
+                ->orderBy('bookmarks.created_at', 'desc')
+                ->whereNull('posts.deleted_at')
+                ->select('posts.*');
+
+              // $query->whereHas('bookmarks', function ($q) use ($userId) {
+              //   $q->where('user_id', $userId);
+              // })
+              //   ->with(['bookmarks' => function ($q) use ($userId) {
+              //     $q->where('user_id', $userId)->orderBy('created_at', 'desc');
+              //   }]);
+
               break;
 
             case 'reposts':
@@ -107,6 +120,7 @@ class SelectQueryService{
               // $postIds = User::find($userId)->interactions();
 
               // $query->whereIn('id', $postIds);
+              $query->orderBy('created_at', 'desc');
 
               break;
 
@@ -125,8 +139,9 @@ class SelectQueryService{
           }
         }
 
-        $posts = $query->whereNull('deleted_at')
-          ->orderBy('created_at', 'desc')
+        $posts = $query
+          // ->whereNull('deleted_at')
+          // ->orderBy('created_at', 'desc')
           // ->whereNull('parent_id')
           ->paginate($postDTO->getPerPage());
 
@@ -148,6 +163,8 @@ class SelectQueryService{
       $parentId = $postDTO->getPost_id();
       $isActivity = $postDTO->getActivity(); // true/false
       $parentPost = Post::find($parentId);
+      $perPage = $postDTO->getPerPage();
+      $sort = $postDTO->getSort();
 
       if (!$parentPost) {
         return ApiCommon::sendResponse(null, 'Post not found!', 404, false);
@@ -195,10 +212,17 @@ class SelectQueryService{
               ->orWhere('user_id', '!=', $userIdParentPost); 
           });
         })
-        ->orderBy('created_at', 'desc')
-        ->get();
+        ->orderBy('created_at', $sort);
+        // ->get();
 
-      return ApiCommon::sendResponse(PostResource::collection($replies), 'success', 200);
+      $replies_pagination = $replies->paginate($perPage);
+
+      if ($replies_pagination->isEmpty()) {
+        return ApiCommon::sendResponse(null, 'replies not found!', 404, false);
+      }
+
+      return ApiCommon::sendPaginatedResponse(PostResource::collection($replies_pagination), 'Data Berhasil Didapat !', 200);
+      // return ApiCommon::sendResponse(PostResource::collection($replies), 'success', 200);
     } catch (\Exception $e) {
       return ApiCommon::sendResponse(null, $e->getMessage(), 500, false);
     }

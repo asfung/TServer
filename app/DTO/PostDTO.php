@@ -14,6 +14,7 @@ class PostDTO {
     private $for;
     private $activity;
     private $media;
+    private $sort;
     
 
     /**
@@ -232,6 +233,26 @@ class PostDTO {
     public function setMedia($media)
     {
         $this->media = $media;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sort
+     */ 
+    public function getSort()
+    {
+        return $this->sort;
+    }
+
+    /**
+     * Set the value of sort
+     *
+     * @return  self
+     */ 
+    public function setSort($sort)
+    {
+        $this->sort = $sort;
 
         return $this;
     }
