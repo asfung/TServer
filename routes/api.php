@@ -37,6 +37,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     // USER
     $router->group(['prefix' => '/user'], function ($router) {
         $router->get('/{username}', [SelectQueryController::class, 'getUsernameCTLL'])->name('user.username.get');
+        $router->get('/', [SelectQueryController::class, 'searchUserCTLL'])->name('user.search');
     });
 
     // MEDIA
@@ -121,8 +122,13 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
             $router->post('/MediaPostIdEdit', [MediaController::class, 'mediaPostIdEditCTLL'])->name('media.edit_media_post_id');
             $router->post('/MediaDelete', [MediaController::class, 'mediaPostIdDeleteCTLL'])->name('media.delete');
         });
-
     });
+
+    // TAGS
+    $router->group(['prefix' => '/tags'], function ($router) {
+        $router->get('/', [SelectQueryController::class, 'getMostTagCTLL'])->name('tag.get');
+    });
+
 });
 
 Route::group(['middleware' => [], 'prefix' => '/1'], function ($router) {

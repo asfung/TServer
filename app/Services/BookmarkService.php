@@ -14,20 +14,22 @@ class BookmarkService {
     public function store_and_scratchOut(BookmarkDTO $bookmarkDTO){
         try{
             DB::beginTransaction();
-            $isLikeExists = Bookmark::where('user_id', $bookmarkDTO->getUser_id())->where('post_id', $bookmarkDTO->getPost_id())->first();
-            if($isLikeExists === null){
+            $isBookmarkExist = Bookmark::where('user_id', $bookmarkDTO->getUser_id())->where('post_id', $bookmarkDTO->getPost_id())->first();
+            if($isBookmarkExist === null){
                 Db::commit();
                 $bookmarkPost = new Bookmark();
                 $bookmarkPost->post_id = $bookmarkDTO->getPost_id();
                 $bookmarkPost->user_id = $bookmarkDTO->getUser_id();
                 $bookmarkPost->save();
-                return ApiCommon::sendResponse($bookmarkPost, 'Berhasil Bookmark Post ', 201);
+                $bookmarkPost['state'] = true;
+                return ApiCommon::sendResponse($bookmarkPost, 'Berhasil Bookmark Post ', 200);
             }else{
                 DB::commit();
                 // $isLikeExists->deleted_at = Carbon::now();
                 // $isLikeExists->save();
-                $isLikeExists->delete();
-                return ApiCommon::sendResponse($isLikeExists, 'Berhasil Remove Bookmark Post', 201);
+                $isBookmarkExist->delete();
+                $isBookmarkExist['state'] = false;
+                return ApiCommon::sendResponse($isBookmarkExist, 'Berhasil Remove Bookmark Post', 200);
             }
         }catch(\Exception $e){
             // ApiCommon::rollback($e->getMessage());

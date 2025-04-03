@@ -21,7 +21,8 @@ class PostController extends Controller
   public function newPostCTLL(Request $request){
     try {
       $request->validate([
-        'content' => 'nullable',
+        // 'content' => 'nullable|max:450', // client harus di bawah dari ini 
+        'content' => 'nullable', // client harus di bawah dari ini 
         'parent_id' => 'nullable',
         'community_id' => 'nullable',
         'media' => 'nullable|array',

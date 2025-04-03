@@ -74,6 +74,10 @@ class User extends Authenticatable implements JWTSubject
     });
   }
 
+  public function getPostCount(){
+    return $this->hasMany(Post::class, 'user_id', 'id')->whereNull('deleted_at')->count();
+  }
+
   public function role()
   {
     return $this->belongsTo(Role::class);

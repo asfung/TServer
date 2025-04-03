@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\DTO\TagDTO;
+use App\Models\Tag;
 use App\DTO\PostDTO;
 use App\DTO\UserDTO;
 use App\Models\Post;
@@ -10,6 +12,7 @@ use App\Common\ApiCommon;
 use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PostResource;
+use App\Http\Resources\UserResource;
 use App\Http\Resources\UserProfileResource;
 
 class SelectQueryService{
@@ -85,9 +88,14 @@ class SelectQueryService{
               break;
 
             case 'likes':
-              $query->whereHas('likes', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-              });
+              // $query->whereHas('likes', function ($q) use ($userId) {
+              //   $q->where('user_id', $userId);
+              // });
+              $query->join('likes', 'posts.id', '=', 'likes.post_id')
+                ->where('likes.user_id', $userId)
+                ->orderBy('likes.created_at', 'desc')
+                ->whereNull('posts.deleted_at')
+                ->select('posts.*');
               break;
 
             case 'following':
@@ -126,12 +134,14 @@ class SelectQueryService{
 
             case 'replies':
               $query->where('parent_id', '!=', null)
-                ->where('user_id', $userId);
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc');
               break;
 
-            case 'post': 
+            case 'posts': 
               $query->whereNull('parent_id')
-                ->where('user_id', $userId);
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc');
               break;
 
             default:
@@ -230,7 +240,7 @@ class SelectQueryService{
   
 
 
-
+  // unused
   public function getPostBookmarks(PostDTO $postDTO){
     try {
       $post = Post::where('id', $postDTO->getPost_id())
@@ -264,6 +274,64 @@ class SelectQueryService{
       }
 
       return ApiCommon::sendResponse(new UserProfileResource($user), 'Data Berhasil Didapat !');
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function searchUser(UserDTO $userDTO){
+    try {
+      $q = trim($userDTO->getQ());
+
+      if (empty($q)) {
+        return ApiCommon::sendResponse(null, 'query cant be empty', 400, false);
+      }
+
+      $users = User::where('username', 'LIKE', "{$q}%")
+        ->orWhere('display_name', 'LIKE', "{$q}%")
+        ->get();
+
+      if (!$users) {
+        return ApiCommon::sendResponse(null, 'user not found', 404, false);
+      }
+
+      return ApiCommon::sendResponse(UserProfileResource::collection($users), 'Data Berhasil Didapat !');
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  // TAG
+  public function getMostTag(TagDTO $tagDTO){
+    try{
+      $type = $tagDTO->getType();
+      $limit = $tagDTO->getLimit() ?? 26; // sementara
+
+      if ($type) {
+        $tags = Tag::select('tag_name', 'tag_formatted', 'type', DB::raw('COUNT(*) as tag_count'))
+            ->where('type', $type)
+            ->groupBy('tag_name', 'tag_formatted', 'type')
+            ->orderByDesc('tag_count')
+            ->take($limit)
+            ->get();
+        
+        $resp = [$type => $tags];
+        return ApiCommon::sendResponse($resp, 'berhasil by ' . $type . ' type', 200);
+    }
+
+    $allTags = Tag::select('tag_name', 'tag_formatted', 'type', DB::raw('COUNT(*) as tag_count'))
+        ->groupBy('tag_name', 'tag_formatted', 'type')
+        ->orderByDesc('tag_count')
+        ->get()
+        ->take($limit)
+        ->groupBy('type'); 
+
+      return ApiCommon::sendResponse($allTags, 'berhasil by all type', 200);
+
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()

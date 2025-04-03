@@ -11,6 +11,7 @@ class UserDTO{
     private $bio;
     private $password;
     private $roleId;
+    private $q;
 
     // credentials
 
@@ -159,6 +160,26 @@ class UserDTO{
     public function setRoleId($roleId)
     {
         $this->roleId = $roleId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of q
+     */ 
+    public function getQ()
+    {
+        return $this->q;
+    }
+
+    /**
+     * Set the value of q
+     *
+     * @return  self
+     */ 
+    public function setQ($q)
+    {
+        $this->q = $q;
 
         return $this;
     }

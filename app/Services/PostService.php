@@ -16,9 +16,7 @@ use App\Http\Resources\PostResource;
 use App\Events\PostNotificationEvent;
 use App\Notifications\PostNotification;
 
-class PostService
-{
-
+class PostService{
 
   public function newPost(PostDTO $postDTO){
     try {
