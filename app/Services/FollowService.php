@@ -29,11 +29,13 @@ class FollowService {
                     $userFollow->deleted_at = null;
                     $userFollow->save();
                     DB::commit();
+                    $userFollow['state'] = true;
                     return ApiCommon::sendResponse($userFollow, 'followed', 200);
                 }else{
                     $userFollow->deleted_at = Carbon::now();
                     $userFollow->save();
                     DB::commit();
+                    $userFollow['state'] = false;
                     return ApiCommon::sendResponse($userFollow, 'unfollowed', 200);
                 }
             } else {
@@ -42,6 +44,7 @@ class FollowService {
                 $follow->user_id_followed = $user_id_followed;
                 $follow->save();
                 DB::commit();
+                $follow['state'] = true;
                 return ApiCommon::sendResponse($follow, 'new followed', 201);
             }
         } catch (\Exception $e) {

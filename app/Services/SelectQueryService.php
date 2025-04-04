@@ -128,19 +128,22 @@ class SelectQueryService{
               // $postIds = User::find($userId)->interactions();
 
               // $query->whereIn('id', $postIds);
-              $query->orderBy('created_at', 'desc');
+              $query->orderBy('created_at', 'desc')
+                ->whereNull('deleted_at');
 
               break;
 
             case 'replies':
               $query->where('parent_id', '!=', null)
                 ->where('user_id', $userId)
+                ->whereNull('deleted_at')
                 ->orderBy('created_at', 'desc');
               break;
 
             case 'posts': 
               $query->whereNull('parent_id')
                 ->where('user_id', $userId)
+                ->whereNull('deleted_at')
                 ->orderBy('created_at', 'desc');
               break;
 

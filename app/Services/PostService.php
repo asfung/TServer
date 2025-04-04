@@ -114,6 +114,8 @@ class PostService{
 
   public function updatePost(PostDTO $postDTO){
     try {
+        $media = $postDTO->getMedia();
+
         DB::beginTransaction();
         $hashtagPattern = '/#(\w+)/';
         $mentionPattern = '/@(\w+)/';
@@ -127,11 +129,24 @@ class PostService{
         $editedPost = Post::where('id', $postDTO->getPost_id())->first();
 
         if ($editedPost->user_id !== $postDTO->getUser_id()) {
-            return ApiCommon::sendResponse(null, 'user id is not matching on your token', 401, false);
+          return ApiCommon::sendResponse(null, 'user id is not matching on your token', 401, false);
         }
 
+        DB::commit();
         $editedPost->content = $postDTO->getContent() ? $postDTO->getContent() : $editedPost->content;
         $editedPost->save();
+
+        if(is_array($media) && $media){
+          foreach ($media as $item) {
+            DB::commit();
+            $dataSclicing[] = $item['id'];
+            $mediaPostId = Media::where('id', $item['id'])->first();
+            $mediaPostId->post_id = $editedPost->id;
+            $mediaPostId->save();
+          }
+        } else {
+          
+        }
 
         foreach ($hashtags[1] as $hashtag) {
             $tag = new Tag();
@@ -151,15 +166,17 @@ class PostService{
             $tag->save();
         }
 
-        $contentTag = new Tag();
-        $contentTag->post_id = $editedPost->id;
-        $contentTag->tag_name = 'content';
-        $contentTag->tag_formatted = 'content';
-        $contentTag->type = 'content';
-        $contentTag->save();
+        // $contentTag = new Tag();
+        // $contentTag->post_id = $editedPost->id;
+        // $contentTag->tag_name = 'content';
+        // $contentTag->tag_formatted = 'content';
+        // $contentTag->type = 'content';
+        // $contentTag->save();
 
-        DB::commit();
-        return ApiCommon::sendResponse($editedPost, 'Berhasil Mengedit Post', 201);
+        // DB::commit();
+
+        $postEdited = new PostResource($editedPost);
+        return ApiCommon::sendResponse($postEdited, 'Berhasil Mengedit Post', 201);
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
@@ -182,6 +199,7 @@ class PostService{
       $deletedPost->deleted_at = Carbon::now();
       $deletedPost->save();
       DB::commit();
+      $deletedPost['state'] = true;
 
       return ApiCommon::sendResponse($deletedPost, 'Berhasil Menghapus Data', 200);
     } catch (\Exception $e) {

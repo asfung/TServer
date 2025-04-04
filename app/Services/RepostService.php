@@ -19,12 +19,14 @@ class RepostService{
         $repostPost->post_id = $postDTO->getPost_id();
         $repostPost->user_id = $postDTO->getUser_id();
         $repostPost->save();
+        $repostPost['state'] = true;
         return ApiCommon::sendResponse($repostPost, 'Berhasil Repost Post ', 200);
       } else {
         DB::commit();
         // $isRepostExists->deleted_at = Carbon::now();
         // $isRepostExists->save();
         $isRepostExists->delete();
+        $isRepostExists['state'] = false;
         return ApiCommon::sendResponse($isRepostExists, 'Berhasil Remove Repost Post', 200);
       }
     } catch (\Exception $e) {

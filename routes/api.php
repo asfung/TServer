@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\GmailController;
 use App\Http\Controllers\RepostController;
 use App\Http\Controllers\SelectQueryController;
 use App\Services\SelectQueryService;
@@ -38,6 +39,11 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->group(['prefix' => '/user'], function ($router) {
         $router->get('/{username}', [SelectQueryController::class, 'getUsernameCTLL'])->name('user.username.get');
         $router->get('/', [SelectQueryController::class, 'searchUserCTLL'])->name('user.search');
+    });
+
+    // EMAIL
+    $router->group(['prefix' => '/email'], function($router) {
+        $router->get('/Send', [GmailController::class, 'send'])->name('email.send');
     });
 
     // MEDIA
@@ -99,8 +105,8 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         $router->post('/CreatePost', [PostController::class, 'newPostCTLL'])->name('post.create');
         $router->get('/', [SelectQueryController::class, 'getPostCTLL'])->name('post.get');
         $router->get('/Replies', [SelectQueryController::class, 'getPostReplyCTLL'])->name('post.replies.get');
-        $router->post('/DeletePost', [PostController::class, 'deletePostCTLL']);
-        $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL'])->name('post.delete');
+        $router->post('/DeletePost', [PostController::class, 'deletePostCTLL'])->name('post.delete');
+        $router->post('/UpdatePost', [PostController::class, 'updatePostCTLL'])->name('post.update');
 
         // REPOST
         $router->group(['prefix' => '/repost'], function ($router) {

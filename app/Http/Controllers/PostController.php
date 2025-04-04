@@ -69,6 +69,8 @@ class PostController extends Controller
   public function updatePostCTLL(Request $request){
     try {
       $request->validate([
+        'post_id' => 'required',
+        'media' => 'nullable|array',
         'content' => 'nullable',
         'parent_id' => 'nullable',
         'community_id' => 'nullable',
@@ -77,6 +79,7 @@ class PostController extends Controller
       $content = $request->input('content');
       $parent_id = $request->input('parent_id');
       $community_id = $request->input('community_id');
+      $media = $request->has('media') ? $request->input('media') : null;
 
       $postDTO = new PostDTO();
       $postDTO->setPost_id($post_id);
@@ -84,6 +87,7 @@ class PostController extends Controller
       $postDTO->setContent($content);
       $postDTO->setParent_id($parent_id);
       $postDTO->setCommunity_id($community_id);
+      $postDTO->setMedia($media);
 
       return $this->postService->updatePost($postDTO);
 
@@ -113,6 +117,7 @@ class PostController extends Controller
   public function deletePostCTLL(Request $request){
     try {
       $request->validate([
+        'post_id' => 'required',
         'content' => 'nullable',
         'parent_id' => 'nullable',
         'community_id' => 'nullable',

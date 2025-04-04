@@ -22,7 +22,7 @@ class Post extends Model
     }
     public function replies()
     {
-        return $this->hasMany(Post::class, 'parent_id');
+        return $this->hasMany(Post::class, 'parent_id')->whereNull('deleted_at');
     }
     public function repliesBy()
     {
