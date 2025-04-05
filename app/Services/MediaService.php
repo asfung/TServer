@@ -2,15 +2,16 @@
 
 namespace App\Services;
 
-use App\Common\ApiCommon;
+use Carbon\Carbon;
+use App\Models\User;
 use App\DTO\MediaDTO;
 use App\Models\Media;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Illuminate\Http\Client\RequestException;
+use App\Common\ApiCommon;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Http\Client\RequestException;
 
 class MediaService
 {
@@ -85,21 +86,45 @@ class MediaService
                     }
                     $user->profile_image = $generatedId;
                     $user->save();
+
+                    // malazzzz
+                    $media = Media::where('id', $generatedId)->first();
+                    $media->user_id = $userId;
+                    $media->save();
     
-                    return ApiCommon::sendResponse($result, 'image profile changed');
+                    return ApiCommon::sendResponse($result, 'image profile changed', 200);
                 }
             }
 
-            // return $response;
-            return ApiCommon::sendResponse($result, 'File Uploaded as ' . $type);
+            // if ($type === 'image-profile') {
+            //     // $user = auth()->user();
+            //     $user = User::find(auth()->id());
+            
+            //     if ($user) {
+            //         $oldMedia = $user->media;
+            //         if ($oldMedia) {
+            //             $oldMedia->delete();
+            //         }
+            //         $mediaItem = $this->insertMedia([
+            //             'id' => $generatedId,
+            //             'user_id' => $user->id,
+            //             'original_name' => $file->getClientOriginalName(),
+            //             'mimetypes' => $file->getMimeType(),
+            //             'generated_name' => "{$generatedId}.{$file->getClientOriginalExtension()}"
+            //         ], $additionalData);
+            
+            //         $user->profile_image = $mediaItem->id;
+            //         $user->save();
+            
+            //         return ApiCommon::sendResponse($mediaItem, 'Image profile changed');
+            //     }
+            // }
 
-
-            // return $file->getClientOriginalExtension();
+        return ApiCommon::sendResponse($result, 'File Uploaded as ' . $type);
         } catch (RequestException $e) {
             return [
                 'error' => true,
                 'message' => $e->getMessage(),
-                // 'response' => $e->getResponse() ? (string) $e->getResponse()->getBody() : null,
             ];
         }
     }

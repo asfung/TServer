@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('media', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('post_id')->nullable();
+            $table->string('user_id')->nullable();
             $table->string('key');
             $table->string('uuid_supabase');
             $table->string('mimetypes');

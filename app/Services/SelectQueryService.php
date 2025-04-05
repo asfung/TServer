@@ -101,9 +101,9 @@ class SelectQueryService{
             case 'following':
               $query->whereHas('user', function ($q) use ($userId) {
                 $q->whereHas('followers', function ($q) use ($userId) {
-                  $q->where('user_id_follower', $userId);
+                  $q->where('user_id_follower', $userId)->whereNull('deleted_at');
                 });
-              });
+              })->orderBy('created_at', 'desc');
               // $query->whereHas('user.followers', function ($q) use ($userId) {
               //   $q->where('user_id_follower', $userId);
               // });

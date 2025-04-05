@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Common\ApiCommon;
+use App\Http\Resources\AuthResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-  public function updateUser(Request $request, $id)
+  public function updateUserCTLL(Request $request)
   {
     try {
       DB::beginTransaction();
@@ -29,7 +30,7 @@ class UserController extends Controller
       $user->update($validatedData);
       DB::commit();
 
-      return ApiCommon::sendResponse($user, 'User updated successfully', 200);
+      return ApiCommon::sendResponse(new AuthResource($user), 'User updated successfully', 200);
     } catch (\Exception $e) {
       DB::rollBack();
       return response()->json(['error' => $e->getMessage()], 500);

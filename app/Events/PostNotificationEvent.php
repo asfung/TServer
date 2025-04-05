@@ -17,29 +17,27 @@ class PostNotificationEvent implements ShouldBroadcast{
     public $user;
     public $followerId;
     public $message;
+    private $details;
 
-    public function __construct($user, $followerId, $message) {
+    public function __construct($user, $followerId, $message, $details) {
         $this->user = $user;
         $this->followerId = $followerId;
         $this->message = $message;
+        $this->details = $details;
     }
 
-    // public function broadcastOn(): array {
-    //     return collect($this->followers)->map(function ($follower) {
-    //         $encryptedId = ApiCommon::encryptUserId($follower->user_id_follower);
-    //         return new PrivateChannel('_notifications.' . $encryptedId);
-    //     })->toArray();
-    // }
-
     public function broadcastOn() {
-        // return new PrivateChannel('_notifications.' . ApiCommon::encryptUserId($this->followerId));
-        return new Channel('_notifications.' . $this->followerId);
+        $channelName = '_notifications.' . $this->followerId;
+        $hashedChannel = hash('sha256', $channelName);
+        // return new Channel('_notifications.' . $this->followerId);
+        return new Channel($hashedChannel);
     }
 
     public function broadcastWith(): array {
         return [
             'user' => $this->user,
             'message' => $this->message,
+            'details' => $this->details,
         ];
     }
 }

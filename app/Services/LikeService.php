@@ -6,6 +6,7 @@ use App\Models\Like;
 use App\Common\ApiCommon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\NotificationHelper;
 
 class LikeService {
 
@@ -21,6 +22,7 @@ class LikeService {
                 $likePost->user_id = $likeDTO->getUser_id();
                 $likePost->save();
                 $likePost['state'] = true;
+                NotificationHelper::sendWatcherPostNotificationByPostId($likeDTO->getPost_id());
                 return ApiCommon::sendResponse($likePost, 'Berhasil Like Post ', 200);
             }else{
                 DB::commit();
@@ -28,6 +30,7 @@ class LikeService {
                 // $isLikeExists->save();
                 $isLikeExist->delete();
                 $isLikeExist['state'] = false;
+                NotificationHelper::sendWatcherPostNotificationByPostId($likeDTO->getPost_id());
                 return ApiCommon::sendResponse($isLikeExist, 'Berhasil Remove Like Post', 200);
             }
         }catch(\Exception $e){

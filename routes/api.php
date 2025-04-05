@@ -10,8 +10,10 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\GmailController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RepostController;
 use App\Http\Controllers\SelectQueryController;
+use App\Http\Controllers\UserController;
 use App\Services\SelectQueryService;
 
 /*
@@ -39,6 +41,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->group(['prefix' => '/user'], function ($router) {
         $router->get('/{username}', [SelectQueryController::class, 'getUsernameCTLL'])->name('user.username.get');
         $router->get('/', [SelectQueryController::class, 'searchUserCTLL'])->name('user.search');
+        $router->post('/Update', [UserController::class, 'updateUserCTLL'])->name('user.update');
     });
 
     // EMAIL
@@ -50,6 +53,11 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->group(['prefix' => '/media'], function ($router) {
         $router->post('Upload', [MediaController::class, 'uploadFile'])->name('media.upload');
         $router->get('GetFile', [MediaController::class, 'getFile'])->name('media.read');
+    });
+
+    // NOTIFICATION
+    $router->group(['prefix' => '/notifications'], function ($router) {
+        $router->get('All', [NotificationController::class, 'getAllCTLL'])->name('notifications.all');
     });
 
     // RESOURCES

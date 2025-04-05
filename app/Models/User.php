@@ -95,7 +95,7 @@ class User extends Authenticatable implements JWTSubject
 
   public function following()
   {
-    return $this->hasMany(Follow::class, 'user_id_follower', 'id');
+    return $this->hasMany(Follow::class, 'user_id_follower', 'id')->whereNull('deleted_at');
   }
 
   public function getFollowersCountAttribute()
@@ -114,7 +114,8 @@ class User extends Authenticatable implements JWTSubject
       return false; 
     }
     $authUserId = auth()->id();
-    return $this->followers()->where('user_id_follower', $authUserId)->exists();
+    // return $this->followers()->where('user_id_follower', $authUserId)->exists();
+    return $this->followers()->where('user_id_follower', $authUserId)->whereNull('deleted_at')->exists();
   }
 
   public function quotes()

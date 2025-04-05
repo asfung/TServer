@@ -29,6 +29,7 @@ class PostNotification extends Notification
     return [
       'user' => collect($this->data['user'])->except(['followers']),
       'message' => $this->data['message'],
+      'details' => $this->data['details'],
   ];
   }
 }

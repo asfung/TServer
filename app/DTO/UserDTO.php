@@ -9,6 +9,7 @@ class UserDTO{
     private $email;
     private $profile_image;
     private $bio;
+    private $address;
     private $password;
     private $roleId;
     private $q;
@@ -180,6 +181,26 @@ class UserDTO{
     public function setQ($q)
     {
         $this->q = $q;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of address
+     */ 
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * Set the value of address
+     *
+     * @return  self
+     */ 
+    public function setAddress($address)
+    {
+        $this->address = $address;
 
         return $this;
     }

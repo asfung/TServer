@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\PostResource;
 use App\Events\PostNotificationEvent;
+use App\Helpers\NotificationHelper;
+use App\Http\Resources\UserProfileResource;
 use App\Notifications\PostNotification;
 
 class PostService{
@@ -85,23 +87,30 @@ class PostService{
         return ApiCommon::sendResponse($newPost, 'Berhasil Membuat Quote', 201);
       }
 
+      $parent_post = $newPost->parent_id ? Post::with('user')->find($newPost->parent_id) : null;
       $user = User::find($newPost->user_id);
       $followers = $user->followers;
       foreach ($followers as $follow) {
-        $followerUser = $follow->follower; // Get the User model
-        $message = "User {$user->username} created a new post! " . $followerUser->id;
-    
-        // Dispatch WebSocket event
-        event(new PostNotificationEvent($user, $followerUser->id, $message));
-    
-        // Store notification in the database
-        $followerUser->notify(new PostNotification([
-            'user' => $user,
-            'message' => $message
-        ]));
-    }
-    $postCreated = new PostResource($newPost);
+        $followerUser = $follow->follower;
+        if ($parent_post) {
+          $message = "@{$user->username} replied to @{$parent_post->user->username}'s post!";
+        } else {
+          $message = "@{$user->username} created a new post!";
+        }
 
+        $details = [
+          'post' => new PostResource($newPost),
+          '_link' => "/@{$user->username}/talk/{$newPost->id}"
+        ];
+
+        $userParse = new UserProfileResource($user);
+        NotificationHelper::sendNotification($userParse, $followerUser->id, $message, $details , true);
+      }
+    
+    NotificationHelper::sendWatcherPostNotification($newPost);
+    if($parent_post)
+      NotificationHelper::sendWatcherPostNotification($parent_post);
+    $postCreated = new PostResource($newPost);
     return ApiCommon::sendResponse($postCreated, 'Berhasil Membuat Post', 201);
     } catch (\Exception $e) {
       // ApiCommon::rollback($e->getMessage());
@@ -200,6 +209,11 @@ class PostService{
       $deletedPost->save();
       DB::commit();
       $deletedPost['state'] = true;
+
+      // $parent_post = Post::find($postDTO->getPost_id());
+      if($deletedPost->parent_id)
+        $parent_post = Post::find($deletedPost->parent_id);
+        NotificationHelper::sendWatcherPostNotification($parent_post);
 
       return ApiCommon::sendResponse($deletedPost, 'Berhasil Menghapus Data', 200);
     } catch (\Exception $e) {

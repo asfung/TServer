@@ -6,6 +6,7 @@ use App\DTO\PostDTO;
 use App\Models\Repost;
 use App\Common\ApiCommon;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\NotificationHelper;
 
 class RepostService{
 
@@ -20,6 +21,7 @@ class RepostService{
         $repostPost->user_id = $postDTO->getUser_id();
         $repostPost->save();
         $repostPost['state'] = true;
+        NotificationHelper::sendWatcherPostNotificationByPostId($postDTO->getPost_id());
         return ApiCommon::sendResponse($repostPost, 'Berhasil Repost Post ', 200);
       } else {
         DB::commit();
@@ -27,6 +29,7 @@ class RepostService{
         // $isRepostExists->save();
         $isRepostExists->delete();
         $isRepostExists['state'] = false;
+        NotificationHelper::sendWatcherPostNotificationByPostId($postDTO->getPost_id());
         return ApiCommon::sendResponse($isRepostExists, 'Berhasil Remove Repost Post', 200);
       }
     } catch (\Exception $e) {

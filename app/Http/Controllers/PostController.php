@@ -24,6 +24,7 @@ class PostController extends Controller
         // 'content' => 'nullable|max:450', // client harus di bawah dari ini 
         'content' => 'nullable', // client harus di bawah dari ini 
         'parent_id' => 'nullable',
+        '_for' => 'nullable',
         'community_id' => 'nullable',
         'media' => 'nullable|array',
       ]);

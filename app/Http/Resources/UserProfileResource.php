@@ -34,6 +34,7 @@ class UserProfileResource extends JsonResource
             'following_count' => $this->username === 'Paung' ? -9999_9999 : $this->getFollowingCountAttribute(),
             'post_count' => $this->username === 'Paung' ? 69_000_000_000 : $this->getPostCount(),
             // 'followers' => $this->followers,
+            // 'following' => $this->following,
             'followed' => $this->getIsFollowedAttribute(),
             'profile_image' => $this->profile_image ? new MediaResource($this->media) : null,
             'is_me' => $isMe,
