@@ -57,7 +57,7 @@ class SelectQueryService{
         }
 
         if ($postDTO->getQ()) {
-          $query->where('content', 'like', '%' . $postDTO->getQ() . '%');
+          $query->where('content', 'like', '%' . $postDTO->getQ() . '%')->whereNull('deleted_at');
         }
 
         if ($type) {
