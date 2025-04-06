@@ -108,8 +108,9 @@ class PostService{
       }
     
     NotificationHelper::sendWatcherPostNotification($newPost);
-    if($parent_post)
+    if($parent_post){
       NotificationHelper::sendWatcherPostNotification($parent_post);
+    }
     $postCreated = new PostResource($newPost);
     return ApiCommon::sendResponse($postCreated, 'Berhasil Membuat Post', 201);
     } catch (\Exception $e) {
@@ -211,9 +212,10 @@ class PostService{
       $deletedPost['state'] = true;
 
       // $parent_post = Post::find($postDTO->getPost_id());
-      if($deletedPost->parent_id)
+      if($deletedPost->parent_id){
         $parent_post = Post::find($deletedPost->parent_id);
         NotificationHelper::sendWatcherPostNotification($parent_post);
+      }
 
       return ApiCommon::sendResponse($deletedPost, 'Berhasil Menghapus Data', 200);
     } catch (\Exception $e) {

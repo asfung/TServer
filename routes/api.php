@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
-    $router->post('Logout', [AuthController::class, 'logout']);
+    $router->post('Logout', [AuthController::class, 'logoutCTLL'])->name('auth.logout');
     $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.token.refresh');
     $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.token.check');
     // $router->post('test', [MediaController::class, 'test']);
