@@ -178,6 +178,7 @@ class SelectQueryService{
       $parentPost = Post::find($parentId);
       $perPage = $postDTO->getPerPage();
       $sort = $postDTO->getSort();
+      $isDeep = $postDTO->getIsDeep();
 
       if (!$parentPost) {
         return ApiCommon::sendResponse(null, 'Post not found!', 404, false);
@@ -206,6 +207,35 @@ class SelectQueryService{
           }
         }
       };
+
+      if ($isDeep) {
+        $deepReplies = collect();
+        $maxDepth = $postDTO->getMaxDepth() ?? 3;
+
+        $fetchDeepReplies = function ($parentId, $currentDepth = 1) use (&$fetchDeepReplies, &$deepReplies, $maxDepth) {
+          if ($currentDepth > $maxDepth) return;
+
+          $replies = Post::with(['likes', 'bookmarks'])
+            ->where('parent_id', $parentId)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+          foreach ($replies as $reply) {
+            $deepReplies->push(new PostResource($reply));
+            $fetchDeepReplies($reply->id, $currentDepth + 1);
+          }
+        };
+
+        $fetchDeepReplies($parentId);
+
+        if ($deepReplies->isEmpty()) {
+          return ApiCommon::sendResponse(null, 'replies not found!', 404, false);
+        }
+
+        return ApiCommon::sendResponse($deepReplies, 'Deep replies retrieved!', 200);
+      }
+
 
       if ($isActivity) {
         if ($activityPost->count() > 0) {

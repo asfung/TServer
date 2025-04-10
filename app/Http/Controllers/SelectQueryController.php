@@ -55,12 +55,14 @@ class SelectQueryController extends Controller{
       $perPage = $request->input('per_page', 10);
       $post_id = $request->input('post_id');
       $activity = $request->input('activity', false);
+      $isDeep = $request->input('isDeep', false);
       $sort = $request->input('sort', 'desc');
 
       $postDto = new PostDTO();
       $postDto->setPerPage($perPage);
       $postDto->setPost_id($post_id);
       $postDto->setActivity($activity);
+      $postDto->setIsDeep($isDeep);
       $postDto->setSort($sort);
 
       return $this->selectQueryService->getPostReply($postDto);

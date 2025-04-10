@@ -15,6 +15,9 @@ class PostDTO {
     private $activity;
     private $media;
     private $sort;
+
+    private $isDeep;
+    private $maxDepth;
     
 
     /**
@@ -253,6 +256,46 @@ class PostDTO {
     public function setSort($sort)
     {
         $this->sort = $sort;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of isDeep
+     */ 
+    public function getIsDeep()
+    {
+        return $this->isDeep;
+    }
+
+    /**
+     * Set the value of isDeep
+     *
+     * @return  self
+     */ 
+    public function setIsDeep($isDeep)
+    {
+        $this->isDeep = $isDeep;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of maxDepth
+     */ 
+    public function getMaxDepth()
+    {
+        return $this->maxDepth;
+    }
+
+    /**
+     * Set the value of maxDepth
+     *
+     * @return  self
+     */ 
+    public function setMaxDepth($maxDepth)
+    {
+        $this->maxDepth = $maxDepth;
 
         return $this;
     }
