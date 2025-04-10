@@ -48,10 +48,12 @@ class PostService{
       if(is_array($media) && $media){
         foreach ($media as $item) {
           DB::commit();
-          $dataSclicing[] = $item['id'];
-          $mediaPostId = Media::where('id', $item['id'])->first();
-          $mediaPostId->post_id = $newPost->id;
-          $mediaPostId->save();
+          $mediaPost = Media::where('id', $item['id'])->first();
+          if ($mediaPost) {
+              $mediaPost->post_id = $newPost->id;
+              $mediaPost->index = $item['index'] ?? null; 
+              $mediaPost->save();
+          }
         }
       } else {
         
@@ -124,76 +126,82 @@ class PostService{
 
   public function updatePost(PostDTO $postDTO){
     try {
-        $media = $postDTO->getMedia();
+      $media = $postDTO->getMedia();
 
-        DB::beginTransaction();
-        $hashtagPattern = '/#(\w+)/';
-        $mentionPattern = '/@(\w+)/';
+      DB::beginTransaction();
+      $hashtagPattern = '/#(\w+)/';
+      $mentionPattern = '/@(\w+)/';
 
-        $content = $postDTO->getContent();
-        preg_match_all($hashtagPattern, $content, $hashtags);
-        preg_match_all($mentionPattern, $content, $mentions);
+      $content = $postDTO->getContent();
+      preg_match_all($hashtagPattern, $content, $hashtags);
+      preg_match_all($mentionPattern, $content, $mentions);
 
-        Tag::where('post_id', $postDTO->getPost_id())->delete();
+      Tag::where('post_id', $postDTO->getPost_id())->delete();
 
-        $editedPost = Post::where('id', $postDTO->getPost_id())->first();
+      $editedPost = Post::where('id', $postDTO->getPost_id())->first();
 
-        if ($editedPost->user_id !== $postDTO->getUser_id()) {
-          return ApiCommon::sendResponse(null, 'user id is not matching on your token', 401, false);
-        }
+      if ($editedPost->user_id !== $postDTO->getUser_id()) {
+        return ApiCommon::sendResponse(null, 'user id is not matching on your token', 401, false);
+      }
 
-        DB::commit();
-        $editedPost->content = $postDTO->getContent() ? $postDTO->getContent() : $editedPost->content;
-        $editedPost->save();
+      DB::commit();
+      $editedPost->content = $postDTO->getContent() ? $postDTO->getContent() : $editedPost->content;
+      $editedPost->save();
 
-        if(is_array($media) && $media){
-          foreach ($media as $item) {
-            DB::commit();
-            $dataSclicing[] = $item['id'];
-            $mediaPostId = Media::where('id', $item['id'])->first();
-            $mediaPostId->post_id = $editedPost->id;
-            $mediaPostId->save();
+      if ($media && is_array($media)) {
+        $mediaIds = array_column($media, 'id');
+        $existingMedia = Media::where('post_id', $editedPost->id)->pluck('id')->toArray();
+  
+        $mediaToRemove = array_diff($existingMedia, $mediaIds);
+        Media::whereIn('id', $mediaToRemove)->update(['post_id' => null, 'index' => null]);
+  
+        foreach ($media as $item) {
+          $mediaItem = Media::where('id', $item['id'])->first();
+          if ($mediaItem) {
+            $mediaItem->post_id = $editedPost->id;
+            $mediaItem->index = $item['index'] ?? null;
+            $mediaItem->save();
           }
-        } else {
-          
         }
+      }
+  
 
-        foreach ($hashtags[1] as $hashtag) {
-            $tag = new Tag();
-            $tag->post_id = $editedPost->id;
-            $tag->tag_name = $hashtag;
-            $tag->tag_formatted = '#' . $hashtag;
-            $tag->type = 'hashtag';
-            $tag->save();
-        }
+      foreach ($hashtags[1] as $hashtag) {
+        $tag = new Tag();
+        $tag->post_id = $editedPost->id;
+        $tag->tag_name = $hashtag;
+        $tag->tag_formatted = '#' . $hashtag;
+        $tag->type = 'hashtag';
+        $tag->save();
+      }
 
-        foreach ($mentions[1] as $mention) {
-            $tag = new Tag();
-            $tag->post_id = $editedPost->id;
-            $tag->tag_name = $mention;
-            $tag->tag_formatted = '@' . $mention;
-            $tag->type = 'mention';
-            $tag->save();
-        }
+      foreach ($mentions[1] as $mention) {
+        $tag = new Tag();
+        $tag->post_id = $editedPost->id;
+        $tag->tag_name = $mention;
+        $tag->tag_formatted = '@' . $mention;
+        $tag->type = 'mention';
+        $tag->save();
+      }
 
-        // $contentTag = new Tag();
-        // $contentTag->post_id = $editedPost->id;
-        // $contentTag->tag_name = 'content';
-        // $contentTag->tag_formatted = 'content';
-        // $contentTag->type = 'content';
-        // $contentTag->save();
+      // $contentTag = new Tag();
+      // $contentTag->post_id = $editedPost->id;
+      // $contentTag->tag_name = 'content';
+      // $contentTag->tag_formatted = 'content';
+      // $contentTag->type = 'content';
+      // $contentTag->save();
 
-        // DB::commit();
+      // DB::commit();
 
-        $postEdited = new PostResource($editedPost);
-        return ApiCommon::sendResponse($postEdited, 'Berhasil Mengedit Post', 201);
+      $postEdited = new PostResource($editedPost);
+      return ApiCommon::sendResponse($postEdited, 'Berhasil Mengedit Post', 201);
     } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+      DB::rollBack();
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
     }
-}
+  }
 
   public function deletePost(PostDTO $postDTO){
     try {
