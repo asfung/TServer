@@ -84,7 +84,7 @@ class PostService{
         $quote->post_id = $newPost->id;
         $quote->user_id = $postDTO->getUser_id();
         $quote->save();
-        return ApiCommon::sendResponse($newPost, 'Berhasil Membuat Quote', 201);
+        return ApiCommon::sendResponse(new PostResource($newPost), 'Berhasil Membuat Quote', 201);
       }
 
       $parent_post = $newPost->parent_id ? Post::with('user')->find($newPost->parent_id) : null;
