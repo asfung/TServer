@@ -14,6 +14,9 @@ class UserDTO{
     private $roleId;
     private $q;
 
+    private $old_password;
+    private $new_password;
+
     // credentials
 
     public function getUser_id(){
@@ -201,6 +204,46 @@ class UserDTO{
     public function setAddress($address)
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of old_password
+     */ 
+    public function getOld_password()
+    {
+        return $this->old_password;
+    }
+
+    /**
+     * Set the value of old_password
+     *
+     * @return  self
+     */ 
+    public function setOld_password($old_password)
+    {
+        $this->old_password = $old_password;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of new_password
+     */ 
+    public function getNew_password()
+    {
+        return $this->new_password;
+    }
+
+    /**
+     * Set the value of new_password
+     *
+     * @return  self
+     */ 
+    public function setNew_password($new_password)
+    {
+        $this->new_password = $new_password;
 
         return $this;
     }

@@ -155,14 +155,24 @@ class PostService{
         $mediaToRemove = array_diff($existingMedia, $mediaIds);
         Media::whereIn('id', $mediaToRemove)->update(['post_id' => null, 'index' => null]);
   
-        foreach ($media as $item) {
+        // foreach ($media as $item) {
+        //   $mediaItem = Media::where('id', $item['id'])->first();
+        //   if ($mediaItem) {
+        //     $mediaItem->post_id = $editedPost->id;
+        //     $mediaItem->index = $item['index'] ?? null;
+        //     $mediaItem->save();
+        //   }
+        // }
+
+        foreach ($media as $i => $item) {
           $mediaItem = Media::where('id', $item['id'])->first();
           if ($mediaItem) {
             $mediaItem->post_id = $editedPost->id;
-            $mediaItem->index = $item['index'] ?? null;
+            $mediaItem->index = $item['index'] ?? $i;
             $mediaItem->save();
           }
         }
+
       }
   
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\ApiCommon;
 use App\DTO\UserDTO;
 use App\Models\User;
 use App\Services\AuthService;
@@ -49,6 +50,27 @@ class AuthController extends Controller{
       ], 500);
     }
   }
+
+  public function changePasswordCTLL(Request $request){
+    try {
+      $request->validate([
+        'old_password' => 'required|string|max:255',
+        'new_password' => 'required|string|max:255',
+      ]);
+
+      $userDTO = new UserDTO();
+      $userDTO->setOld_password($request->input('old_password'));
+      $userDTO->setNew_password($request->input('new_password'));
+      $userDTO->setUser_id(ApiCommon::getUserId());
+
+      return $this->authService->changePassword($userDTO);
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
 
   public function logoutCTLL(){
     Auth::logout();

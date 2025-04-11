@@ -35,6 +35,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->post('Logout', [AuthController::class, 'logoutCTLL'])->name('auth.logout');
     $router->post('RefreshToken', [AuthController::class, 'refreshCTLL'])->name('auth.token.refresh');
     $router->post('CheckToken', [AuthController::class, 'checkTokenCTLL'])->name('auth.token.check');
+    $router->post('ChangePassword', [AuthController::class, 'changePasswordCTLL'])->name('auth.password.change');
     // $router->post('test', [MediaController::class, 'test']);
 
     // USER

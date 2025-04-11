@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Common\ApiCommon;
 use App\DTO\UserDTO;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,8 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+
+use function PHPUnit\Framework\isEmpty;
 
 class AuthService
 {
@@ -152,6 +155,32 @@ class AuthService
         ]
       ]);
 
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => $e->getMessage()
+      ], 500);
+    }
+  }
+
+  public function changePassword(UserDTO $userDTO){
+    try{
+      DB::beginTransaction();
+      $user_id = $userDTO->getUser_id();
+      $old_password = $userDTO->getOld_password();
+      $new_password = $userDTO->getNew_password();
+
+      $userExists = User::find($user_id);
+      if(isEmpty($userExists)){
+        ApiCommon::sendResponse(null, 'user not found', 404, false);
+      }
+      if(!Hash::check($old_password, $userExists->password)){
+        ApiCommon::sendResponse(null, 'old password not match', 422, false);
+      }
+      DB::commit();
+      $userExists->password = Hash::make($new_password);
+      $userExists->save();
+
+      return ApiCommon::sendResponse(null, 'Berhasil Ganti Password', 200);
     } catch (\Exception $e) {
       return response()->json([
         'error' => $e->getMessage()
