@@ -170,11 +170,11 @@ class AuthService
       $new_password = $userDTO->getNew_password();
 
       $userExists = User::find($user_id);
-      if(isEmpty($userExists)){
-        ApiCommon::sendResponse(null, 'user not found', 404, false);
+      if(is_null($userExists)){
+        return ApiCommon::sendResponse(null, 'user not found', 404, false);
       }
       if(!Hash::check($old_password, $userExists->password)){
-        ApiCommon::sendResponse(null, 'old password not match', 422, false);
+        return ApiCommon::sendResponse(null, 'old password not match', 422, false);
       }
       DB::commit();
       $userExists->password = Hash::make($new_password);

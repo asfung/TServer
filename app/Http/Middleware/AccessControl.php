@@ -24,7 +24,7 @@ class AccessControl
     $currentRoute = $request->route()->getName();
 
     // if ($currentRoute === 'auth.refresh_token' || $currentRoute === 'auth.check_token') {
-    if ($currentRoute === 'auth.refresh_token') {
+    if ($currentRoute === 'auth.token.refresh') {
       return $next($request);
     }
 
