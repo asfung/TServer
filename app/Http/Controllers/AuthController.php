@@ -33,7 +33,7 @@ class AuthController extends Controller{
     try {
       $request->validate([
         'display_name' => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:users',
+        'username' => 'required|string|max:255|unique:users|not_regex:/\s/',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:6',
       ]);

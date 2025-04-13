@@ -43,6 +43,15 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
         $router->get('/{username}', [SelectQueryController::class, 'getUsernameCTLL'])->name('user.username.get');
         $router->get('/', [SelectQueryController::class, 'searchUserCTLL'])->name('user.search');
         $router->post('/Update', [UserController::class, 'updateUserCTLL'])->name('user.update');
+
+        // for ADMIN role
+        $router->group(['prefix' => '/admin'], function ($router) {
+            $router->post('/', [UserController::class, 'index'])->name('user.admin.index');
+            $router->post('/Show/{id}', [UserController::class, 'show'])->name('user.admin.show');
+            $router->post('/Create', [UserController::class, 'store'])->name('user.admin.store');
+            $router->post('/Update/{id}', [UserController::class, 'update'])->name('user.admin.update');
+            $router->post('/Delete/{id}', [UserController::class, 'destroy'])->name('user.admin.destroy');
+        });
     });
 
     // EMAIL

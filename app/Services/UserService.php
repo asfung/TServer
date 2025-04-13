@@ -7,8 +7,9 @@ use App\Models\User;
 use App\Common\ApiCommon;
 use Illuminate\Support\Facades\DB;
 
-class UserService
-{
+class UserService {
+
+  // unused
   public function updateNonBinaryUser(UserDTO $userDTO){
     try {
       DB::beginTransaction();
