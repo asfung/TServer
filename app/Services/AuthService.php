@@ -69,6 +69,7 @@ class AuthService
       } catch (TokenExpiredException $e) {
         return response()->json([
           'status' => 'error',
+          'key' => 'unable-to-refresh',
           'message' => 'Token has expired and cannot be refreshed.',
         ], 401);
       } catch (TokenInvalidException $e) {
