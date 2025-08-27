@@ -1,5 +1,6 @@
 <?php
 
+use App\Common\ApiCommon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -14,7 +15,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RepostController;
 use App\Http\Controllers\SelectQueryController;
 use App\Http\Controllers\UserController;
-use App\Services\SelectQueryService;
+use App\Http\Controllers\UtilController;
+use Embed\Embed;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,7 +98,7 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
 
         $router->post('User', [RoleController::class, 'resourcesPermissionUserCTLL'])->name('permissions.user');
         $router->post('User/{roleId}', [RoleController::class, 'resourcesPermissionCTLL'])->name('permissions.user.role');
- 
+
         // SUB-ROLES
         $router->group(['prefix' => '/roles'], function($router) {
             // ROLE_PERMISSION
@@ -152,6 +154,27 @@ Route::group(['middleware' => ['acl'], 'prefix' => '/1'], function ($router) {
     $router->group(['prefix' => '/tags'], function ($router) {
         $router->get('/', [SelectQueryController::class, 'getMostTagCTLL'])->name('tag.get');
     });
+
+    // $router->get("/LinkPreview", function(Request $request) {
+    //     $url = $request->input('url');
+    //     if (!$url) return ApiCommon::sendResponse(null, 'must provide the \'url\'', 400, false);
+    //
+    //     try {
+    //         $embed = new Embed();
+    //         $info = $embed->get($url);
+    //
+    //         return ApiCommon::sendResponse([
+    //             'title' => $info->title ?? '',
+    //             'description' => $info->description ?? '',
+    //             'image' => $info->image ?? null,
+    //             'url' => $url,
+    //         ], 'berhasil dapat link preview', 200, true);
+    //
+    //     }catch(\Exception $e){
+    //         return ApiCommon::sendResponse(null, $e->getMessage(), 500, false);
+    //     }
+    // })->name('link.preview');
+    $router->get('LinkPreview', [UtilController::class, 'getLinkPreview'])->name('link.preview');
 
 });
 
